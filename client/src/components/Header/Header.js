@@ -14,10 +14,9 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
-const pages = ['Doctor', 'Labroratory'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-const Header = () => {
+
+const Header = (props) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -78,7 +77,7 @@ const Header = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
+              {props.pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
@@ -94,7 +93,7 @@ const Header = () => {
             HealthChain
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {props.pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
@@ -127,7 +126,7 @@ const Header = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
+              {props.settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>

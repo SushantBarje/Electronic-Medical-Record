@@ -59,7 +59,7 @@ const rows = [
   { id: 2, lastName: 'Lannister', firstName: 'Cersei', specialization: 'Dentist', department: 'XYZ', age: 42},
   { id: 3, lastName: 'Lannister', firstName: 'Jaime', specialization: 'Dentist', department: 'XYZ', age: 45},
   { id: 4, lastName: 'Stark', firstName: 'Arya', specialization: 'Dentist', department: 'XYZ', age: 16},            
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', specialization: 'Denti st', department: 'XYZ', age: null},
+  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', specialization: 'Dentist', department: 'XYZ', age: null},
   { id: 6, lastName: 'Melisandre', firstName: null, specialization: 'Dentist', department: 'XYZ', age: 150},
   { id: 7, lastName: 'Clifford', firstName: 'Ferrara', specialization: 'Dentist', department: 'XYZ', age: 44},                          
   { id: 8, lastName: 'Frances', firstName: 'Rossini', specialization: 'Dentist', department: 'XYZ', age: 36},                         
