@@ -1,0 +1,26 @@
+{
+  "name": "server-api",
+  "version": "1.0.0",
+  "description": "\"Server Client for interacting with chaincode\"",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www",
+    "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
+  },
+  "author": "Sushant Barje, Vishal Phule, Rohit Mungase, Sahil Joshi",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "cookie-parser": "^1.4.6",
+    "debug": "^4.3.3",
+    "express": "^4.17.2",
+    "express-router": "0.0.1",
+    "fabric-network": "^2.2.11",
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
