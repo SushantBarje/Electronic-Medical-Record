@@ -1,0 +1,50 @@
+{
+	"name": "hospital_network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "exploreradmin",
+			"password": "exploreradminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "DoctorMSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"hospital": {
+			"peers": {
+				"peer0.doctor.hospital_network.com": {}
+			}
+		}
+	},
+	"organizations": {
+		"DoctorMSP": {
+			"mspid": "DoctorMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp/keystore/7dd80e4fd6a8c316ff71f874282ce2046be6bd251c30c4957c4dfacc087ad1e3_sk"
+			},
+			"peers": [
+				"peer0.doctor.hospital_network.com"
+			],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp/signcerts/cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.doctor.hospital_network.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/doctor.hospital_network.com/peers/peer0.doctor.hospital_network.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.doctor.hospital_network.com:7051"
+		}
+	}
+}
