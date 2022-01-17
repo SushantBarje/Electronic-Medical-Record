@@ -83,7 +83,7 @@ parsePeerConnectionParameters() {
     setGlobals $1
     if [ $1 -eq 1 ]; then
       PEER="peer0.doctor"
-    elif [ $1 -eq 2]; then
+    elif [ $1 -eq 2 ]; then
       PEER="peer0.laboratory"
     else
       PEER="peer0.org$1"
@@ -97,9 +97,9 @@ parsePeerConnectionParameters() {
     fi
     PEER_CONN_PARMS=("${PEER_CONN_PARMS[@]}" --peerAddresses $CORE_PEER_ADDRESS)
     ## Set path to TLS certificate
-    if [ $1 -eq 1]; then
+    if [ $1 -eq 1 ]; then
       CA=PEER0_DOCTOR_CA
-    elif [ $1 -eq 2]; then
+    elif [ $1 -eq 2 ]; then
       CA=PEER0_LABORATORY_CA
     else
       CA=PEER0_ORG$1_CA

@@ -3,6 +3,7 @@
  * @create Sat Jan 15 19:36:02 IST 2022
  * @description Schema class of patient
  */
+const crypto = require('crypto');
 
 class PatientAsset {
 
@@ -19,7 +20,7 @@ class PatientAsset {
         this.updatedBy = updatedBy;
         this.symptoms = symptoms;
         this.diagnosis = diagnosis;
-        this.treatment = this.treatment;
+        this.treatment = treatment;
         this.other = other;
         this.permissionGranted = [];
         return this;

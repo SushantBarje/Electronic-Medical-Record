@@ -6,7 +6,6 @@
 
 'use strict';
 
-const FabCar = require('./lib/');
+const CommonContract = require('./lib/CommonContract.js');
 
-module.exports.FabCar = FabCar;
-module.exports.contracts = [ FabCar ];
+module.exports.contracts = [CommonContract];
