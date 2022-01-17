@@ -33,12 +33,18 @@ function approveForMyOrg() {
   ORG=$1
   setGlobals $ORG
   set -x
-  peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${CC_VERSION} --package-id ${PACKAGE_ID} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
+  peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.hospital_network.com --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${CC_VERSION} --package-id ${PACKAGE_ID} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
-  verifyResult $res "Chaincode definition approved on peer0.org${ORG} on channel '$CHANNEL_NAME' failed"
-  successln "Chaincode definition approved on peer0.org${ORG} on channel '$CHANNEL_NAME'"
+  ORGNAME=""
+  if [ $1 -eq 1 ]; then
+    ORGNAME="doctor"
+  else
+    ORGNAME="laboratory"
+  fi
+  verifyResult $res "Chaincode definition approved on peer0.${ORGNAME} on channel '$CHANNEL_NAME' failed"
+  successln "Chaincode definition approved on peer0.${ORGNAME} on channel '$CHANNEL_NAME'"
 }
 
 # checkCommitReadiness VERSION PEER ORG
@@ -82,7 +88,7 @@ function commitChaincodeDefinition() {
   # peer (if join was successful), let's supply it directly as we know
   # it using the "-o" option
   set -x
-  peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} "${PEER_CONN_PARMS[@]}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
+  peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.hospital_network.com --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} "${PEER_CONN_PARMS[@]}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
@@ -130,7 +136,7 @@ function chaincodeInvokeInit() {
   set -x
   fcn_call='{"function":"'${CC_INIT_FCN}'","Args":[]}'
   infoln "invoke fcn call:${fcn_call}"
-  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C $CHANNEL_NAME -n ${CC_NAME} "${PEER_CONN_PARMS[@]}" --isInit -c ${fcn_call} >&log.txt
+  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.hospital_network.com --tls --cafile "$ORDERER_CA" -C $CHANNEL_NAME -n ${CC_NAME} "${PEER_CONN_PARMS[@]}" --isInit -c ${fcn_call} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
