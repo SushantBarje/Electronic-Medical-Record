@@ -15,17 +15,26 @@ CC_SRC_PATH="../chaincode/"
 
 
 # clean out any old identites in the wallets
-rm -rf javascript/wallet/*
+rm -rf server-api/wallet/*
 
 # launch network; create channel and join peer to channel
 pushd network-config
 ./network.sh down
+# yes | docker system prune
+
+# yes | docker network prune
+
+# yes | docker volume prune
+
+# yes | docker image prune
+
 ./network.sh up createChannel -ca
 
 ./network.sh deployCC -ccn basic -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+
 popd
 
 ./seedfile.sh
-pushd explorer
-docker-compose up
-popd
+# pushd explorer
+# docker-compose up
+# popd

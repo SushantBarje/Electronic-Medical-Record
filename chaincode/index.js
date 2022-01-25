@@ -1,5 +1,4 @@
 /*
- * Copyright IBM Corp. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,4 +7,4 @@
 
 const CommonContract = require('./lib/CommonContract.js');
 
-module.exports.contracts = [CommonContract];
+module.exports.contracts = [ CommonContract ];

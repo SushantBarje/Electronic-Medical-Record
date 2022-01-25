@@ -5,9 +5,9 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-let Patient = require('./PatientAssets');
 
-class CommanContract extends Contract {
+
+class CommonContract extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
@@ -49,7 +49,16 @@ class CommanContract extends Contract {
             await ctx.stub.putState('PID' + i, Buffer.from(JSON.stringify(initData[i])));
             console.log('Data Added:---', initData[i]);
         }
+
+        
+    }
+
+    async getPatient(ctx, patientId){
+        const patient = await ctx.stub.getState(patientId);
+        console.log(patient);
+        let asset = JSON.parse(patient.toString());
+        return asset;
     }
 }
 
-module.exports = CommanContract;
+module.exports = CommonContract;
