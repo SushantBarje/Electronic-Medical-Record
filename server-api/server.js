@@ -13,9 +13,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-
 var indexRouter = require('./routes/index');
+var adminRouter = require('./routes/admin');
 app.use('/', indexRouter);
+app.use('/admin', adminRouter);
 
 const PORT = process.env.PORT || 3000;
 
