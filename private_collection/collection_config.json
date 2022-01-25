@@ -1,0 +1,26 @@
+[
+    {
+        "name": "doctor-laboratory-PrivateCollection",
+        "policy": "OR('DoctorMSP.member', 'LaboratoryMSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 1,
+        "blockToLive": 0,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": false,
+        "endorsementPolicy": {
+            "signaturePolicy": "OR('DoctorMSP.member', 'LaboratoryMSP.member')"
+        }
+    },
+    {
+        "name": "doctor-PrivateCollection",
+        "policy": "OR('DoctorMSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 1,
+        "blockToLive": 0,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": false,
+        "endorsementPolicy": {
+            "signaturePolicy": "OR('DoctorMSP.member')"
+        }
+    }
+]
