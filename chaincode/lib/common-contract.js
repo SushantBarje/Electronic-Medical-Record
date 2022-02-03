@@ -6,7 +6,6 @@
 
 const { Contract } = require('fabric-contract-api');
 
-
 class CommonContract extends Contract {
 
     async initLedger(ctx) {
@@ -25,7 +24,7 @@ class CommonContract extends Contract {
                 "symptoms": "fever",
                 "diagnosis": "Covid",
                 "treatment": "dolo 2 times",
-                "other": "no",
+                "other": "no"
             },
             {
                 "firstName": "Five",
@@ -40,7 +39,7 @@ class CommonContract extends Contract {
                 "symptoms": "fever",
                 "diagnosis": "Covid",
                 "treatment": "dolo 2 times",
-                "other": "no",
+                "other": "no"
             }
         ]
 
@@ -49,15 +48,17 @@ class CommonContract extends Contract {
             await ctx.stub.putState('PID' + i, Buffer.from(JSON.stringify(initData[i])));
             console.log('Data Added:---', initData[i]);
         }
-
-        
     }
 
     async getPatient(ctx, patientId){
         const patient = await ctx.stub.getState(patientId);
-        console.log(patient);
-        let asset = JSON.parse(patient.toString());
-        return asset;
+        if(patient.length || patient.length > 0){
+            console.log(patient);
+            let data = JSON.parse(patient.toString());
+            return data;
+        }
+
+        throw new Error(`Patient ${patientId} does not exists`);
     }
 
     async getAllPatient(ctx){

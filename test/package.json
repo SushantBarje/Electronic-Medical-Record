@@ -1,0 +1,11 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "\"testing\"",
+  "main": "index.js",
+  "author": "Sushant Barje",
+  "license": "MIT",
+  "dependencies": {
+    "fabric-shim": "^2.2.2"
+  }
+}
