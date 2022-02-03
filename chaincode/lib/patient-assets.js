@@ -3,6 +3,9 @@
  * @create Sat Jan 15 19:36:02 IST 2022
  * @description Schema class of patient
  */
+
+'use strict';
+
 const crypto = require('crypto');
 
 class PatientAsset {
