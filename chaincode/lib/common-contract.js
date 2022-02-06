@@ -57,8 +57,13 @@ class CommonContract extends Contract {
             let data = JSON.parse(patient.toString());
             return data;
         }
-
+        
         throw new Error(`Patient ${patientId} does not exists`);
+    }
+
+    async patientExists(ctx, patientId) {
+        const buffer = await ctx.stub.getState(patientId);
+        return (!!buffer && buffer.length > 0);
     }
 
     async getAllPatient(ctx){
@@ -76,7 +81,6 @@ class CommonContract extends Contract {
             }
             allResults.push({ Key: key, Record: record });
         }
-        console.info(allResults);
         return JSON.stringify(allResults);
     }
 }
