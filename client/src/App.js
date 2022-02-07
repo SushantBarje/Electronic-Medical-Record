@@ -9,12 +9,9 @@ const settings = [];
 
 function App() {
   return (
-    <div className="App">
-      <div className="app-header">
-        <Header pages={pages}  settings={settings}></Header>
-      </div>
+    <div className="App"> 
       <div className="app-body">
-      
+
       </div>
     </div>
   );

@@ -1,9 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import PatientDashboard from './PatientDashboard';
 
-it('It should mount', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<PatientDashboard />, div);
-  ReactDOM.unmountComponentAtNode(div);
+describe('<PatientDashboard />', () => {
+  test('it should mount', () => {
+    render(<PatientDashboard />);
+    
+    const patientDashboard = screen.getByTestId('PatientDashboard');
+
+    expect(patientDashboard).toBeInTheDocument();
+  });
 });

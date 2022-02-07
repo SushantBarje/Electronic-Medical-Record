@@ -66,6 +66,7 @@ class DoctorContract extends CommonContract {
         identity = identity.split('::')[1].split('/')[2].split('=');
         return identity[1].toString('utf8');
     }
+    
 }
 
 module.exports = DoctorContract;

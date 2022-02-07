@@ -2,7 +2,7 @@
   "usesTypeScript": false,
   "usesCssModule": true,
   "cssPreprocessor": "css",
-  "testLibrary": "None",
+  "testLibrary": "Testing Library",
   "component": {
     "default": {
       "path": "src/components",
