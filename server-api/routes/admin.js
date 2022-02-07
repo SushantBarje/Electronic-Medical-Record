@@ -157,6 +157,6 @@ router.get('/createPatient', async (req, res) => {
 
 router.post('/admin/login', (req, res) => {
 
-})
+});
 
 module.exports = router;

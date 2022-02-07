@@ -13,6 +13,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import Header from '../Header/Header';
+
+const pages = [];
+const settings = [];
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -50,6 +55,7 @@ export default function Login(props) {
 
   return (
     <ThemeProvider theme={theme}>
+      <Header pages={pages}  settings={settings}></Header>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box

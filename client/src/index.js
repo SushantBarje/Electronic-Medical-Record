@@ -5,6 +5,7 @@ import App from './App';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 import Login from './components/Login/Login';
+import PatientDashboard from './components/PatientDashboard/PatientDashboard';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,6 +14,7 @@ ReactDOM.render(
       <Routes>
         <Route path="/admin/login" element={<Login loginFor={"Admin"}/>}></Route>
         <Route path="/" element={<Login loginFor={"User"}/>} />
+        <Route path="/patient/dashboard" element={<PatientDashboard/>}></Route>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
