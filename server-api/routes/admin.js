@@ -74,15 +74,20 @@ router.get('/getAllPatient', async (req, res) => {
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('hospital');
 
-        // Get the contract from the network.
-        const contract = network.getContract('basic', 'AdminContract');
+        //Get the contract from the network.
+        const contract = network.getContract('basic', 'PatientContract');
 
-        const result = await contract.evaluateTransaction('getAllPatient');
-        //const data = JSON.parse(result);
-        console.log(`Transaction has been evaluated, result is: ${result}`);
-
+        const result = await contract.evaluateTransaction('getPatientHistory', 'PID0');
+        const data = JSON.parse(result.toString());
+        console.log('Transaction has been evaluated, result is:');
+        console.log(data);
+        // const contract = network.getContract('basic', 'org.hyperledger.fabric');
+        // const result = await contract.evaluateTransaction('GetMetadata');
+        // const metadata = JSON.parse(result);
+        // console.log(metadata.contracts);
         // Disconnect from the gateway.
         await gateway.disconnect();
+        res.send(data[0].patientId);
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
@@ -120,8 +125,8 @@ router.get('/createPatient', async (req, res) => {
         const contract = network.getContract('basic', 'AdminContract');
 
         let patientId = await contract.evaluateTransaction('getLastPatientId');
-        console.log(parseInt(patientId.slice(3))+1);
-        patientId = 'PID' + (parseInt(patientId.slice(3))+2);
+        console.log(parseInt(patientId.slice(3)) + 1);
+        patientId = 'PID' + (parseInt(patientId.slice(3)) + 1);
         console.log(patientId);
 
         let patient = {
