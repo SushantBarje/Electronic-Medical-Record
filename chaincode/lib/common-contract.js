@@ -50,14 +50,14 @@ class CommonContract extends Contract {
         }
     }
 
-    async getPatient(ctx, patientId){
+    async getPatient(ctx, patientId) {
         const patient = await ctx.stub.getState(patientId);
-        if(patient.length || patient.length > 0){
+        if (patient.length || patient.length > 0) {
             console.log(patient);
             let data = JSON.parse(patient.toString());
             return data;
         }
-        
+
         throw new Error(`Patient ${patientId} does not exists`);
     }
 
@@ -66,11 +66,11 @@ class CommonContract extends Contract {
         return (!!buffer && buffer.length > 0);
     }
 
-    async getAllPatient(ctx){
+    async getAllPatient(ctx) {
         const startKey = '';
         const endKey = '';
         const allResults = [];
-        for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)){
+        for await (const { key, value } of ctx.stub.getStateByRange(startKey, endKey)) {
             const strValue = Buffer.from(value).toString('utf8');
             let record;
             try {
@@ -82,6 +82,52 @@ class CommonContract extends Contract {
             allResults.push({ Key: key, Record: record });
         }
         return JSON.stringify(allResults);
+    }
+
+    async getPatientHistory(iterator, isHistory) {
+        let allResults = [];
+        while (true) {
+            let res = await iterator.next();
+            console.log("res");
+            console.log(res);
+            console.log("Res.value");
+            console.log(res.value);
+        
+            if (res.done) {
+                console.log('end of data');
+                await iterator.close();
+                console.info(allResults);
+                return JSON.stringify(allResults);
+            }
+            console.log("res.value.value.toString()");
+            console.log(res.value.value.toString());
+            if (res.value !== undefined && res.value && res.value.value.toString()) {
+                let jsonRes = {};
+                console.log(res.value.value.toString('utf8'));
+
+                if (isHistory && isHistory === true) {
+                    jsonRes.Key = res.value.key;
+                    jsonRes.TxId = res.value.txId;
+                    jsonRes.Timestamp = res.value.timestamp;
+                    try {
+                        console.log("JSON.parse(res.value.value.toString('utf8'))");
+                        jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+                    } catch (err) {
+                        console.log(err);
+                        jsonRes.Record = res.value.value.toString('utf8');
+                    }
+                } else {
+                    jsonRes.Key = res.value.key;
+                    try {
+                        jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+                    } catch (err) {
+                        console.log(err);
+                        jsonRes.Record = res.value.value.toString('utf8');
+                    }
+                }
+                allResults.push(jsonRes);
+            }
+        }
     }
 }
 
