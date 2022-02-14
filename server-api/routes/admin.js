@@ -77,17 +77,16 @@ router.get('/getAllPatient', async (req, res) => {
         //Get the contract from the network.
         const contract = network.getContract('basic', 'PatientContract');
 
-        const result = await contract.evaluateTransaction('getPatientHistory', 'PID0');
-        const data = JSON.parse(result.toString());
+        const result = await contract.evaluateTransaction('grantAccess',JSON.stringify({patientId:'PID2', doctorId:'DID0'}));
         console.log('Transaction has been evaluated, result is:');
-        console.log(data);
+        console.log(result);
         // const contract = network.getContract('basic', 'org.hyperledger.fabric');
         // const result = await contract.evaluateTransaction('GetMetadata');
         // const metadata = JSON.parse(result);
         // console.log(metadata.contracts);
         // Disconnect from the gateway.
         await gateway.disconnect();
-        res.send(data[0].patientId);
+        //res.send(result.toString());
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);

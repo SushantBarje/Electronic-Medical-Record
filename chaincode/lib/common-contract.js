@@ -51,9 +51,10 @@ class CommonContract extends Contract {
     }
 
     async getPatient(ctx, patientId) {
+        console.log("super:getPatient");
+        console.log(patientId);
         const patient = await ctx.stub.getState(patientId);
         if (patient.length || patient.length > 0) {
-            console.log(patient);
             let data = JSON.parse(patient.toString());
             return data;
         }

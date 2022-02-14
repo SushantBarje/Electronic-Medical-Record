@@ -23,7 +23,7 @@ class AdminContract extends CommonContract {
             throw new Error('password field is empty');
         }
 
-        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.password, args.age, args.phoneNumber, args.address, args.bloodGroup, args.updatedBy, args.other);
+        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.password, args.age, args.phoneNumber, args.address, args.bloodGroup, args.allergies ,args.updatedBy, args.other);
         const result = await this.patientExists(ctx, patientData.patientId);
         console.log(result);
         if (result) {
@@ -37,9 +37,9 @@ class AdminContract extends CommonContract {
         let patient = await super.getPatient(ctx, patientId);
         let data = ({
             patientId: patientId,
-            firstName: patient.Record.firstName,
-            middleName: patient.Record.middleName,
-            phoneNumber: patient.Record.phoneNumber,
+            firstName: patient.firstName,
+            middleName: patient.middleName,
+            phoneNumber: patient.phoneNumber,
         });
         return data;
     }

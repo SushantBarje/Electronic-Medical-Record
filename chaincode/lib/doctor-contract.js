@@ -25,17 +25,54 @@ class DoctorContract extends CommonContract {
             bloodGroup: patient.bloodGroup,
             symptoms: patient.symptoms,
             diagnosis: patient.diagnosis,
-            treatment: patient.treatment
+            treatment: patient.treatment,
+            allergies: patient.allergies,
+            other: patient.other,
+            followUp: patient.followUp
         });
 
         return patient;
     }
 
+    async getPatientHistory(ctx, patientId){
+        console.log("PatientID ::::::");
+        console.log(patientId);
+        let iterator = await ctx.stub.getHistoryForKey(patientId);
+        let result = await super.getPatientHistory(iterator, true);
+        console.log("restult");
+        console.log(result);
+        result = JSON.parse(result);
+        
+        for(let i = 0; i < result.length; i++){
+            const obj = result[i];
+            result[i] = {
+                tx_id: obj.TxId,
+                timestamp: obj.Timestamp,
+                patientId: patientId,
+                firstName: obj.Record.firstName,
+                middleName: obj.Record.middleName,
+                lastName: obj.Record.lastName,
+                phoneNumber: obj.Record.phoneNumber,
+                address: obj.Record.address,
+                age: obj.Record.age,
+                bloodGroup: obj.Record.bloodGroup,
+                allergies: obj.Record.allergies,
+                updatedBy: obj.Record.updatedBy,
+                diagnosis: obj.Record.diagnosis,
+                treatment: obj.Record.treatment,
+                other: obj.Record.other,
+            }
+        }
+        console.log("RESULTT");
+        console.log(result);
+        return result;
+    }
+
     async updatePatientRecord(ctx, obj) {
         obj = JSON.parse(obj);
         let change = false;
-        const patient = await super.getPatient(ctx, obj.patientId);
-
+        let patient = await super.getPatient(ctx, obj.patientId);
+        console.log(patient);
         if (obj.symptoms !== null && obj.symptoms !== '' && obj.symptoms !== patient.symptoms) {
             patient.symptoms = obj.symptoms;
             change = true;
