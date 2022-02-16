@@ -20,8 +20,8 @@ var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
 
 app.use('/api/login', userRouter);
-app.use('/', indexRouter);
-app.use('/admin', adminRouter);
+app.use('/api', indexRouter);
+app.use('/api/admin', adminRouter);
 
 const PORT = process.env.PORT || 3000;
 
