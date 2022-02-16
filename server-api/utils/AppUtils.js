@@ -25,7 +25,7 @@ exports.buildCCDoctor = () => {
 	return ccp;
 };
 
-exports.buildCCPLaboratory = () => {
+exports.buildCCLaboratory = () => {
 	// load the common connection configuration file
 	const ccpPath = path.resolve(__dirname, '..', '..', 'network-config', 'organizations', 'peerOrganizations', 'laboratory.hospital_network.com', 'connection-laboratory.json');
 	const fileExists = fs.existsSync(ccpPath);
