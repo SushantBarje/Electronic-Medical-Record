@@ -1,5 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
 
 var createError = require('http-errors');
 var path = require('path');
@@ -12,9 +15,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-
+var userRouter = require('./routes/user');
 var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
+
+app.use('/api/login', userRouter);
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 
