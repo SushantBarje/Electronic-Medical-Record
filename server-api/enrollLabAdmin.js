@@ -15,11 +15,11 @@ const { buildCAClient, enrollAdmin } = require('./utils/CAUtils');
 
 const doctorMSPID = 'LaboratoryMSP';
 const caHostName = 'ca.laboratory.hospital_network.com';
-const labAdminUsername = 'admin';
-const labAdminPassword = 'adminpw';
+const labAdminUsername = 'laboratoryadmin';
+const labAdminPassword = 'laboratorypw';
 const walletPath = path.join(__dirname, 'wallet/laboratory');
 
-async function main() {
+exports.enrollLabAdmin = async () => {
   try {
     // load the network configuration
     const ccp = buildCCLaboratory();
@@ -32,10 +32,9 @@ async function main() {
 
     // Check to see if we've already enrolled the admin user.
     await enrollAdmin(caClient, wallet, doctorMSPID, labAdminUsername, labAdminPassword);
+
   } catch (error) {
     console.error(`Failed to enroll admin user "admin": ${error}`);
     process.exit(1);
   }
 }
-
-main();

@@ -15,11 +15,11 @@ const { buildCAClient, enrollAdmin } = require('./utils/CAUtils');
 
 const doctorMSPID = 'DoctorMSP';
 const caHostName = 'ca.doctor.hospital_network.com';
-const doctorAdminUsername = 'admin';
-const doctorAdminPassword = 'adminpw';
+const doctorAdminUsername = 'doctoradmin';
+const doctorAdminPassword = 'doctorpw';
 const walletPath = path.join(__dirname, 'wallet/doctor');
 
-async function main() {
+exports.enrollDoctorAdmin = async () => {
     try {
         // load the network configuration
         const ccp = buildCCDoctor();
@@ -29,7 +29,7 @@ async function main() {
 
         // Create a new file system based wallet for managing identities.
         const wallet = await buildWallet(Wallets, walletPath);
-       
+
         // Check to see if we've already enrolled the admin user.
         await enrollAdmin(caClient, wallet, doctorMSPID, doctorAdminUsername, doctorAdminPassword);
     } catch (error) {
@@ -37,5 +37,3 @@ async function main() {
         process.exit(1);
     }
 }
-
-main();
