@@ -19,7 +19,7 @@ const doctorAdminUsername = 'admin';
 const doctorAdminPassword = 'adminpw';
 const walletPath = path.join(__dirname, 'wallet/doctor');
 
-async function main() {
+exports.enrollDoctorAdmin = () => {
     try {
         // load the network configuration
         const ccp = buildCCDoctor();
@@ -37,5 +37,3 @@ async function main() {
         process.exit(1);
     }
 }
-
-main();

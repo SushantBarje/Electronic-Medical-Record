@@ -14,6 +14,7 @@ const path = require('path');
 async function main() {
     try {
         // load the network configuration
+        
         const ccpPath = path.resolve(__dirname, '..', 'network-config', 'organizations', 'peerOrganizations', 'doctor.hospital_network.com', 'connection-doctor.json');
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 

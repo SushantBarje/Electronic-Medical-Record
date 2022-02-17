@@ -19,7 +19,7 @@ const labAdminUsername = 'admin';
 const labAdminPassword = 'adminpw';
 const walletPath = path.join(__dirname, 'wallet/laboratory');
 
-async function main() {
+exports.enrollLabAdmin = () => {
   try {
     // load the network configuration
     const ccp = buildCCLaboratory();
@@ -37,5 +37,3 @@ async function main() {
     process.exit(1);
   }
 }
-
-main();
