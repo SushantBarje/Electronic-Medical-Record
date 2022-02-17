@@ -4,6 +4,7 @@
   "description": "\"Server Client for interacting with chaincode\"",
   "main": "server.js",
   "scripts": {
+    "prestart": "node initApp.js",
     "start": "node ./bin/www",
     "devstart": "nodemon server.js",
     "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"

@@ -15,7 +15,7 @@ exports.createRedisConnection = async (org) => {
   if (org === 'doctor') {
     url = 'redis://:doctorpassword@127.0.0.1:6379';
   } else if (org === 'laboratory') {
-    url = 'redis://:laboratorypassword@127.0.0.1:6380';
+    url = 'redis://:labpassword@127.0.0.1:6380';
   } else {
     return null;
   }
