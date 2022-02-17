@@ -4,6 +4,10 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 
+const redis = require('redis');
+const util = require('util');
+
+
 var createError = require('http-errors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -25,6 +29,23 @@ app.use('/api/admin', adminRouter);
 
 const PORT = process.env.PORT || 3000;
 
+(async () => {
+    const redisClient = redis.createClient({url: 'redis://:laboratorypassword@127.0.0.1:6380'});
+    await redisClient.connect();
+    //await redisClient.AUTH('doctorpassword');
+    // redisClient.on('error', (err) => {
+    //     console.log('error');
+    // });
+    
+    const res = await redisClient.get('framework');
+    console.log(res);
+})();
+
+
+
+
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
-})
+});
+
+
