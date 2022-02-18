@@ -1,4 +1,9 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,50 +17,63 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 import Header from '../Header/Header';
 
 const pages = [];
 const settings = [];
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
 const theme = createTheme();
-
 
 export default function Login(props) {
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [organization, setOrganization] = useState("");
+
+  const handleSelectChange = (event) => {
+    setRole(event.target.value);
+  }
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
+
     console.log({
-      email: data.get('email'),
+      email: data.get('username'),
       password: data.get('password'),
     });
   };
 
-  let title = "";
-  if(props.loginFor === "Admin"){
-    title = "Admin Login";
-  }else{
-    title = "Login";
+  const selectOrganizations = () => {
+    console.log(role);
+    if (role === 'admin' || role === 'doctor') {
+      return (
+        <FormControl margin="normal" required fullWidth>
+          <InputLabel id="select-organization">Select Organization</InputLabel>
+          <Select
+            labelId="select-organization"
+            id="select-organization"
+            value={organization}
+            label="Organization"
+            onChange={(e) => { setOrganization(e.target.value) }}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            <MenuItem value='doctor'>Doctor Department</MenuItem>
+            <MenuItem value='laboratory'>Laboratory Department</MenuItem>
+          </Select>
+        </FormControl>
+      )
+    }
   }
 
   return (
     <ThemeProvider theme={theme}>
-      <Header pages={pages}  settings={settings}></Header>
+      <Header pages={pages} settings={settings}></Header>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -70,16 +88,36 @@ export default function Login(props) {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {title}
+            Login
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <FormControl margin="normal" required fullWidth>
+              <InputLabel id="role-select">Role</InputLabel>
+              <Select
+                labelId="role-select"
+                id="role-select"
+                value={role}
+                label="Role"
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value='admin'>Admin</MenuItem>
+                <MenuItem value='doctor'>Doctor</MenuItem>
+                <MenuItem value='patient'>Patient</MenuItem>
+              </Select>
+            </FormControl>
+            {selectOrganizations()}
             <TextField
               margin="normal"
               required
               fullWidth
-              id="text"
+              id="username"
               label="Username"
               name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
               autoFocus
             />
@@ -91,6 +129,8 @@ export default function Login(props) {
               label="Password"
               type="password"
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
             />
             <FormControlLabel
@@ -103,7 +143,7 @@ export default function Login(props) {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Log In
             </Button>
             <Grid container>
               <Grid item xs>
@@ -119,7 +159,6 @@ export default function Login(props) {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
   );

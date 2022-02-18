@@ -1,30 +1,30 @@
 var express = require('express');
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
+const { ADMIN_ROLE, DOCTOR_ROLE, PATIENT_ROLE, createRedisConnection } = require('../utils/utils');
 var router = express.Router();
-
-const users = [
-  {
-    username: "sushant",
-    password: "sus123",
-    role: "patient"
-  }
-]
 
 let refreshTokens = [];
 
-router.post('/', (req, res) => {
-  const { username, password, role } = req.body;
-  const user = users.find((u) => {
-    return u.username === username && u.password === password;
-  });
+router.post('/login', async (req, res) => {
+  const { username, password, role, organization } = req.body;
+  console.log(req.body);
+  let user = false;
+  if(role === ADMIN_ROLE || role === DOCTOR_ROLE){
+    const redisClient = await createRedisConnection(organization);
+    user = (password == (await redisClient.GET(username)));
+    console.log(user);
+  }
+
+  if(role === PATIENT_ROLE){
+    console.log('Patientrole');
+  }
+
   if (user) {
-    const accessToken = auth.generateAccessToken(user);
-    const refreshToken = auth.generateRefreshToken(user);
+    const accessToken = auth.generateAccessToken({username: username, role: role, organization: organization});
+    const refreshToken = auth.generateRefreshToken({username: username, role: role, organization: organization});
     refreshTokens.push(refreshToken);
     res.status(200).json({
-      username: user.username,
-      role: user.role,
       accessToken,
       refreshToken
     });
@@ -53,6 +53,11 @@ router.post('/refresh', (req, res) => {
     })
   })
 })
+
+router.delete('/logout', (req, res) => {
+  refreshTokens = refreshTokens.filter((token) => token !== req.headers.token);
+  res.sendStatus(204);
+});
 
 router.delete('/user/:userId', auth.verify, (req, res) => {
   if(req.user.id === req.params.role || req.user.role){
