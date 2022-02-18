@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "node initApp.js",
     "start": "node ./bin/www",
-    "devstart": "nodemon server.js",
+    "devstart": "npm run prestart && nodemon server.js",
     "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
   },
   "author": "Sushant Barje, Vishal Phule, Rohit Mungase, Sahil Joshi",

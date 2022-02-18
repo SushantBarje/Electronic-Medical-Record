@@ -19,7 +19,7 @@ exports.createRedisConnection = async (org) => {
   } else {
     return null;
   }
-  const redisClient = redis.createClient({ url: url });
-  redisClient.connect();
+  const redisClient = await redis.createClient({ url: url });
+  await redisClient.connect();
   return redisClient;
 }
