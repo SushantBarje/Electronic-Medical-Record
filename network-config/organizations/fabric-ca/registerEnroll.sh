@@ -7,7 +7,7 @@ function createDoctorOrg() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/doctor.hospital_network.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-doctor --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
+  fabric-ca-client enroll -u https://doctoradmin:doctorpw@localhost:7054 --caname ca-doctor --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
@@ -37,7 +37,7 @@ function createDoctorOrg() {
 
   infoln "Registering the org admin"
   set -x
-  fabric-ca-client register --caname ca-doctor --id.name doctoradmin --id.secret doctoradminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
+  fabric-ca-client register --caname ca-doctor --id.name doctordoctoradmin --id.secret doctordoctorpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the peer0 msp"
@@ -74,7 +74,7 @@ function createDoctorOrg() {
 
   infoln "Generating the org admin msp"
   set -x
-  fabric-ca-client enroll -u https://doctoradmin:doctoradminpw@localhost:7054 --caname ca-doctor -M "${PWD}/organizations/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
+  fabric-ca-client enroll -u https://doctordoctoradmin:doctordoctorpw@localhost:7054 --caname ca-doctor -M "${PWD}/organizations/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/doctor/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/doctor.hospital_network.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp/config.yaml"
@@ -87,7 +87,7 @@ function createLaboratoryOrg() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/laboratory.hospital_network.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-laboratory --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
+  fabric-ca-client enroll -u https://laboratoryadmin:laboratorypw@localhost:8054 --caname ca-laboratory --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
@@ -117,7 +117,7 @@ function createLaboratoryOrg() {
 
   infoln "Registering the org admin"
   set -x
-  fabric-ca-client register --caname ca-laboratory --id.name laboratoryadmin --id.secret laboratoryadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
+  fabric-ca-client register --caname ca-laboratory --id.name laboratorylaboratory --id.secret laboratorylaboratorypw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the peer0 msp"
@@ -154,7 +154,7 @@ function createLaboratoryOrg() {
 
   infoln "Generating the org admin msp"
   set -x
-  fabric-ca-client enroll -u https://laboratoryadmin:laboratoryadminpw@localhost:8054 --caname ca-laboratory -M "${PWD}/organizations/peerOrganizations/laboratory.hospital_network.com/users/Admin@laboratory.hospital_network.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
+  fabric-ca-client enroll -u https://laboratorylaboratory:laboratorylaboratorypw@localhost:8054 --caname ca-laboratory -M "${PWD}/organizations/peerOrganizations/laboratory.hospital_network.com/users/Admin@laboratory.hospital_network.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/laboratory/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/laboratory.hospital_network.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/laboratory.hospital_network.com/users/Admin@laboratory.hospital_network.com/msp/config.yaml"

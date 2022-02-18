@@ -7,7 +7,7 @@ const redis = require('redis');
 
 exports.ADMIN_ROLE = 'admin';
 exports.DOCTOR_ROLE = 'doctor';
-exports.PATIENT = 'patient';
+exports.PATIENT_ROLE = 'patient';
 
 exports.createRedisConnection = async (org) => {
 
@@ -20,6 +20,6 @@ exports.createRedisConnection = async (org) => {
     return null;
   }
   const redisClient = redis.createClient({ url: url });
-  redisClient.connect();
+  await redisClient.connect();
   return redisClient;
 }
