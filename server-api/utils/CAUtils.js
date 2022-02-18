@@ -53,7 +53,7 @@ exports.enrollAdmin = async (caClient, wallet, orgMspId, adminUserId, adminUserP
 	}
 };
 
-exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affiliation) => {
+exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, adminUserId, obj, affiliation) => {
 	try {
 		// Check to see if we've already enrolled the user
 		const userIdentity = await wallet.get(userId);
@@ -74,16 +74,58 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 		const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
 
+		obj = JSON.parse(obj);
+		const firstName = obj.firstName;
+		const lastName = obj.lastName;
+		const role = obj.role;
+		const speciality = (role === 'doctor') ? obj.speciality : '';
+
 		// Register the user, enroll the user, and import the new identity into the wallet.
 		// if affiliation is specified by client, the affiliation value must be configured in CA
 		const secret = await caClient.register({
 			affiliation: affiliation,
 			enrollmentID: userId,
-			role: 'client'
+			role: 'client',
+			attrs: [{
+				name: 'firstName',
+				value: firstName,
+				ecert: true
+			},
+			{
+				name: 'lastName',
+				value: lastName,
+				ecert: true,
+			}, {
+				name: 'role',
+				value: role,
+				ecerts: true
+			}, {
+				name: 'speciality',
+				value: speciality,
+				ecerts: true
+			}],
 		}, adminUser);
 		const enrollment = await caClient.enroll({
 			enrollmentID: userId,
-			enrollmentSecret: secret
+			enrollmentSecret: secret,
+			attrs: [{
+				name: 'firstName',
+				value: firstName,
+				ecert: true
+			},
+			{
+				name: 'lastName',
+				value: lastName,
+				ecert: true,
+			}, {
+				name: 'role',
+				value: role,
+				ecerts: true
+			}, {
+				name: 'speciality',
+				value: speciality,
+				ecerts: true
+			}],
 		});
 		const x509Identity = {
 			credentials: {
@@ -97,5 +139,6 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
+		return error;
 	}
 };
