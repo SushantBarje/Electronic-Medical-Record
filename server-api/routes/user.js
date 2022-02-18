@@ -56,7 +56,7 @@ router.post('/refresh', (req, res) => {
 
 router.delete('/logout', (req, res) => {
   refreshTokens = refreshTokens.filter((token) => token !== req.headers.token);
-  res.sendStatus(204);
+  res.sendStatus(204).json("logout done");
 });
 
 router.delete('/user/:userId', auth.verify, (req, res) => {

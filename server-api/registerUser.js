@@ -10,66 +10,42 @@ const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
+const { buildWallet, buildCCDoctor, buildCCLaboratory } = require('./utils/AppUtils');
+const { buildCAClient, registerAndEnrollUser } = require('./utils/CAUtils');
 
-async function main() {
-    try {
-        // load the network configuration
-        
-        const ccpPath = path.resolve(__dirname, '..', 'network-config', 'organizations', 'peerOrganizations', 'doctor.hospital_network.com', 'connection-doctor.json');
-        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+let ccp;
+let caClient;
+let orgMSP;
+let adminUserId;
+let walletPath;
+let wallet;
 
-        // Create a new CA client for interacting with the CA.
-        const caURL = ccp.certificateAuthorities['ca.doctor.hospital_network.com'].url;
-        const ca = new FabricCAServices(caURL);
-
-        // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
-
-        // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get('appUser1');
-        if (userIdentity) {
-            console.log('An identity for the user "appUser" already exists in the wallet');
-            return;
+const registerUser = async (organization, userid, obj) => {
+    try{
+        if(organization === 'doctor'){
+            ccp = buildCCDoctor();
+            caClient = buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
+            if(obj.role === 'patient'){
+                walletPath = path.join(__dirname, 'wallet/patient');
+            }else{
+                walletPath = path.join(__dirname, 'wallet/doctor');
+            }
+            wallet = await buildWallet(Wallets, walletPath);
+            adminUserId = 'doctoradmin';
+            orgMSP = 'doctorMSP';
+        }else if(organization === 'laboratory'){
+            ccp = buildCCLaboratory();
+            caClient = buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
+            walletPath = path.join(__dirname, 'wallet/laboratory');
+            wallet = await buildWallet(Wallets, walletPath);
+            adminUserId = 'laboratoryadmin';
+            orgMSP = 'laboratoryMSP';
         }
-
-        // Check to see if we've already enrolled the admin user.
-        const adminIdentity = await wallet.get('admin');
-        if (!adminIdentity) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
-            console.log('Run the enrollAdmin.js application before retrying');
-            return;
-        }
-
-        // build a user object for authenticating with the CA
-        const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-        const adminUser = await provider.getUserContext(adminIdentity, 'admin');
-
-        // Register the user, enroll the user, and import the new identity into the wallet.
-        const secret = await ca.register({
-            enrollmentID: 'appUser1',
-            role: 'client'
-        }, adminUser);
-        const enrollment = await ca.enroll({
-            enrollmentID: 'appUser1',
-            enrollmentSecret: secret
-        });
-        const x509Identity = {
-            credentials: {
-                certificate: enrollment.certificate,
-                privateKey: enrollment.key.toBytes(),
-            },
-            mspId: 'DoctorMSP',
-            type: 'X.509',
-        };
-        await wallet.put('appUser1', x509Identity);
-        console.log('Successfully registered and enrolled admin user "appUser" and imported it into the wallet');
-
-    } catch (error) {
-        console.error(`Failed to register user "appUser": ${error}`);
+        const respose = await registerAndEnrollUser(caClient, wallet, orgMSP, userid, adminUserId, JSON.stringify(obj));
+    }catch(err){
+        console.error(`Failed to register user "${userId}": ${error}`);
         process.exit(1);
     }
 }
 
-main();
+//registerUser('doctor', 'D01', {firstName: 'Sushant', lastName: 'Barje', role: 'doctor', speciality: 'heart'});
