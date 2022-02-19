@@ -29,7 +29,7 @@
         "DoctorMSP": {
             "mspid": "DoctorMSP",
             "adminPrivateKey": {
-                "path": "/tmp/crypto/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp/keystore/8bd75e4418f6c0002a3a9feed26a6c93dde52b7da9dac435f164e63916df9f09_sk"
+                "path": "/tmp/crypto/peerOrganizations/doctor.hospital_network.com/users/Admin@doctor.hospital_network.com/msp/keystore/4c61cddec058b576dc568ef8a37715b25088a1474d869ed5d1ca3e4d7354b000_sk"
             },
             "peers": [
                 "peer0.doctor.hospital_network.com"
