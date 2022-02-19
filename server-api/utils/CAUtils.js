@@ -59,15 +59,16 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 		const userIdentity = await wallet.get(userId);
 		if (userIdentity) {
 			console.log(`An identity for the user ${userId} already exists in the wallet`);
-			return;
+			return {error: 'already', message : 'User already exists'};
 		}
 
 		// Must use an admin to register a new user
-		const adminIdentity = await wallet.get(adminUserId);
+	
+		const adminIdentity = await wallet.get('doctoradmin');
 		if (!adminIdentity) {
 			console.log('An identity for the admin user does not exist in the wallet');
 			console.log('Enroll the admin user before retrying');
-			return;
+			return {error: 'not admin', message: 'Admin not exists'};
 		}
 
 		// build a user object for authenticating with the CA
@@ -75,9 +76,11 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
 
 		obj = JSON.parse(obj);
+		console.log(obj);
 		const firstName = obj.firstName;
 		const lastName = obj.lastName;
 		const role = obj.role;
+		const organization = obj.organization;
 		const speciality = (role === 'doctor') ? obj.speciality : '';
 
 		// Register the user, enroll the user, and import the new identity into the wallet.
@@ -98,6 +101,10 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 			}, {
 				name: 'role',
 				value: role,
+				ecerts: true
+			}, {
+				name: 'organization',
+				value: organization,
 				ecerts: true
 			}, {
 				name: 'speciality',
@@ -122,6 +129,10 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 				value: role,
 				ecerts: true
 			}, {
+				name: 'organization',
+				value: organization,
+				ecerts: true
+			}, {
 				name: 'speciality',
 				value: speciality,
 				ecerts: true
@@ -137,8 +148,9 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 		};
 		await wallet.put(userId, x509Identity);
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
+		return {error: 'none', message : 'Successfully registered and enrolled user'};
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
-		return error;
+		return {error: 'already', message : 'User already exists'};
 	}
 };

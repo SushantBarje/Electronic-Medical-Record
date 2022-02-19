@@ -22,8 +22,9 @@ var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
 
 app.use('/api/users', userRouter);
+app.use('/api/admin', adminRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
