@@ -64,7 +64,7 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 
 		// Must use an admin to register a new user
 	
-		const adminIdentity = await wallet.get('doctoradmin');
+		const adminIdentity = await wallet.get(adminUserId);
 		if (!adminIdentity) {
 			console.log('An identity for the admin user does not exist in the wallet');
 			console.log('Enroll the admin user before retrying');
@@ -76,7 +76,6 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
 
 		obj = JSON.parse(obj);
-		console.log(obj);
 		const firstName = obj.firstName;
 		const lastName = obj.lastName;
 		const role = obj.role;
@@ -92,24 +91,23 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 			attrs: [{
 				name: 'firstName',
 				value: firstName,
-				ecert: true
-			},
-			{
+				ecert: true,
+			}, {
 				name: 'lastName',
 				value: lastName,
 				ecert: true,
 			}, {
 				name: 'role',
 				value: role,
-				ecerts: true
+				ecert: true,
 			}, {
 				name: 'organization',
 				value: organization,
-				ecerts: true
+				ecert: true,
 			}, {
 				name: 'speciality',
 				value: speciality,
-				ecerts: true
+				ecert: true,
 			}],
 		}, adminUser);
 		const enrollment = await caClient.enroll({
@@ -118,7 +116,7 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 			attrs: [{
 				name: 'firstName',
 				value: firstName,
-				ecert: true
+				ecert: true,
 			},
 			{
 				name: 'lastName',
@@ -127,15 +125,15 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, admin
 			}, {
 				name: 'role',
 				value: role,
-				ecerts: true
+				ecert: true,
 			}, {
 				name: 'organization',
 				value: organization,
-				ecerts: true
+				ecert: true,
 			}, {
 				name: 'speciality',
 				value: speciality,
-				ecerts: true
+				ecert: true,
 			}],
 		});
 		const x509Identity = {

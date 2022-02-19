@@ -4,7 +4,7 @@ const { Gateway, Wallets } = require('fabric-network');
 const auth = require('../middleware/auth');
 const path = require('path');
 const fs = require('fs');
-const { ADMIN_ROLE, DOCTOR_ROLE, validateRole, createRedisConnection } = require('../utils/utils');
+const { ADMIN_ROLE, DOCTOR_ROLE, validateRole, createRedisConnection, PATIENT_ROLE, connectNetwork } = require('../utils/utils');
 const { buildWallet, buildCCDoctor, buildCCLaboratory } = require('../utils/AppUtils');
 const { buildCAClient, registerAndEnrollUser } = require('../utils/CAUtils');
 const FabricCAServices = require('fabric-ca-client');
@@ -13,9 +13,7 @@ const FabricCAServices = require('fabric-ca-client');
 router.post('/doctors/register', auth.verify, async (req, res) => {
     await validateRole(ADMIN_ROLE, req.user.role, res);
     const { username, password } = req.body;
-    console.log(req.body);
-    console.log(req.user);
-    
+
     const redisClient = await createRedisConnection(req.user.org);
     (await redisClient).SET(username, password);
 
@@ -23,31 +21,108 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
     req.body.organization = req.user.org;
     const obj = [JSON.stringify(req.body)];
     let response;
-    try{
-        if(req.user.org === 'doctor'){
+    try {
+        if (req.user.org === 'doctor') {
             const ccp = buildCCDoctor();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
             const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/doctor'));
             //console.log(await registerAndEnrollUser(caClient, wallet, 'doctorMSP', username, req.user.username, obj))
             response = await registerAndEnrollUser(caClient, wallet, 'doctorMSP', username, req.user.username, obj);
-           
-        }else if(req.user.org === 'laboratory'){
+
+        } else if (req.user.org === 'laboratory') {
             const ccp = buildCCLaboratory();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
             const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/laboratory'));
-            response = await registerAndEnrollUser(caClient, wallet, 'laboratoryMSP', username, req.user.username, obj); 
+            response = await registerAndEnrollUser(caClient, wallet, 'laboratoryMSP', username, req.user.username, obj);
         }
-        console.log(response);
-        if(response.error !== 'none'){
+
+        if (response.error !== 'none') {
             res.status(400).json(response);
-        }else{
+        } else {
             res.status(200).json(response);
         }
-    }catch(err){
+    } catch (err) {
         console.log(err);
         (await redisClient).DEL(username);
         res.status(400).json(err)
     }
+});
+
+/**
+ * @param {req} Request contains header attributes for registration of patient.
+ * @param {res} Response 200 for creating and storing patient 400 if something went wrong.  
+ * @description Creates patient identities and add to wallet and ledger.
+ */
+
+router.post('/patient/register', auth.verify, async (req, res) => {
+    
+    try{
+        await validateRole(ADMIN_ROLE, req.user.role, res);
+        const {...args} = req.body
+        const network = await connectNetwork(req.user.username, req.user.org);
+    
+        let patientId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
+        console.log(parseInt(patientId.slice(3)) + 1);
+        patientLastId = 'PID' + (parseInt(patientId.slice(3)) + 1);
+        args.patientId = patientLastId;
+        const response = await network.contract.submitTransaction('AdminContract:createPatient', JSON.stringify(args));
+        console.log(response.toString());
+        if (response.error) {
+            res.status(400).send(response.error);
+        }
+        console.log(`Transaction has been evaluated, result is: ${response}`);
+    
+        // Disconnect from the gateway.
+        await network.gateway.disconnect();
+        res.status(200).json('ok done');
+    }catch(error){
+        console.log(error);
+        res.status(401).json(error);
+    }
+    
+    //const result = await network.contract.submitTransaction()
+})
+
+router.get('/doctors/all/:organization', auth.verify, async (req, res) => {
+    await validateRole(ADMIN_ROLE, req.user.role, res);
+    if (req.params.organization === "" || req.params.organization.length === 0 || req.params.organization !== req.user.org) {
+        res.status(400).json({ error: 'noOrg', message: 'Organization not found' });
+    }
+    const networkObj = await connectNetwork(req.user.username, req.user.org);
+
+    const users = networkObj.gateway.identityContext.user;
+
+    let caClient
+    if (req.params.organization === 'doctor') {
+        const ccp = buildCCDoctor();
+        caClient = buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
+    } else if (req.params.organization === 'laboratory') {
+        const ccp = buildCCLaboratory();
+        caClient = buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
+    }
+
+    const identitiesArray = await caClient.newIdentityService().getAll(users);
+    const identities = identitiesArray.result.identities;
+
+    const result = [];
+
+    for (let i = 0; i < identities.length; i++) {
+        let temp = {};
+        if (identities[i].type === 'client' && identities[i].id !== req.user.username && identities[i].id !== 'user1') {
+            temp.id = identities[i].id;
+            let attrs = identities[i].attrs;
+            for (let j = 0; j < attrs.length; j++) {
+                if (attrs[j].id !== req.user.username) {
+                    if (attrs[j].name === 'firstName' || attrs[j].name === 'lastName' || attrs[j].name === 'role' || attrs[j].name === 'organization' || attrs[j].name === 'speciality') {
+                        temp[attrs[j].name] = attrs[j].value;
+                    }
+                }
+            }
+            result.push(temp);
+        }
+    }
+
+    res.status(200).json({ error: 'none', message: result });
 });
 
 // router.get('/', async (req, res) => {

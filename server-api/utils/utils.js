@@ -3,7 +3,7 @@
 * @created 2022-02-17 T 10:14:22 
 */
 const { Wallets, Gateway } = require('fabric-network');
-const {buildCCDoctor, buildWallet} = require('./AppUtils');
+const {buildCCDoctor, buildWallet, buildCCLaboratory} = require('./AppUtils');
 const path = require('path');
 const redis = require('redis');
 
@@ -11,32 +11,55 @@ exports.ADMIN_ROLE = 'admin';
 exports.DOCTOR_ROLE = 'doctor';
 exports.PATIENT_ROLE = 'patient';
 
-let ccp;
-let wallet;
+
 
 exports.validateRole = async (allowedRole, myRole, res) => {
-  console.log(allowedRole)
-  console.log(myRole);
-  console.log(allowedRole !== myRole);
   if(!myRole || !allowedRole || allowedRole !== myRole || myRole.length === 0 ){
     return res.status(401).json({message: 'Unauthorized Role'});
   }
 }
 
-exports.connectNetwork = async (userId, res) => {
-  if(req.user.org === 'doctor'){
-    try {
+exports.connectNetwork = async (userId, organization) => {
+  try {
+    let cpp;
+    let wallet;
+    
+    if(organization === 'doctor'){
       ccp = buildCCDoctor();
-      let walletPath = path.join(__dirname, 'wallet/doctor');
+      const walletPath = path.join(__dirname, '../wallet/doctor');
       wallet = await buildWallet(Wallets, walletPath);
 
-      let identity = wallet.get(userId);
+      const identity = wallet.get(userId);
       if(!identity){
-        return res.status()
+        return {error: "userId not exists"};
       }
-    }catch(err){
+    }else if(organization === 'laboratory'){
+      ccp = buildCCLaboratory();
+      let walletPath = path.join(__dirname, '../wallet/laboratory');
+      wallet = await buildWallet(Wallets, walletPath);
 
+      const identity = wallet.get(userId);
+      if(!identity){
+        return {error: "userId not exists"};
+      }
     }
+      const gateway = new Gateway();
+      await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: true } })
+      
+      const network = await gateway.getNetwork('hospital');
+      const contract = network.getContract('basic');
+
+      const networkObj = {
+        contract: contract,
+        network: network,
+        gateway: gateway
+      };
+      
+      console.log("Successfully connected to network.");
+      return networkObj;
+  }catch(err){
+    console.log(`Error while establishing network. ${err}`);
+    return {error: err, message: `Error while establishing network. ${err}`};
   }
 }
 
