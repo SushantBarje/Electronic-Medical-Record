@@ -11,8 +11,18 @@ const PatientAssets = require('./patient-assets');
 class AdminContract extends CommonContract {
 
     async getLastPatientId(ctx) {
-        let result = await this.getAllPatient(ctx);
-        return result[result.length - 1].patientId;
+        const result = await this.getAllPatient(ctx);
+        let maxId = '';
+        let max = 0;
+        for (let i = 0; i < result.length; i++) {
+            if (max < parseInt(result[i].patientId.slice(3))) {
+                maxId = result[i].patientId;
+                max = parseInt(result[i].patientId.slice(3));
+            }
+        }
+        console.log(maxId);
+        return maxId;
+        //return result[result.length - 1].patientId;
     }
 
     async createPatient(ctx, args) {
@@ -23,7 +33,7 @@ class AdminContract extends CommonContract {
             throw new Error('password field is empty');
         }
 
-        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.password, args.age, args.phoneNumber, args.address, args.bloodGroup, args.allergies ,args.updatedBy, args.other);
+        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.password, args.age, args.phoneNumber, args.address, args.bloodGroup, args.allergies, args.updatedBy, args.other);
         const result = await this.patientExists(ctx, patientData.patientId);
         console.log(result);
         if (result) {
