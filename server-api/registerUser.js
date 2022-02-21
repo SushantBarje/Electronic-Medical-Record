@@ -20,19 +20,32 @@ let adminUserId;
 let walletPath;
 let wallet;
 
-const registerUser = async (organization, userid, obj) => {
+exports.registerUser = async (organization, userId, obj) => {
+    console.log(obj.patientId);
+    let wallet1;
+    let wallet2 = '';
     try{
         if(organization === 'doctor'){
             ccp = buildCCDoctor();
             caClient = buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
             if(obj.role === 'patient'){
+                
+                userId = obj.patientId;
+
+                walletPath = path.join(__dirname, 'wallet/doctor');
+                wallet1 = await buildWallet(Wallets, walletPath);
+                
                 walletPath = path.join(__dirname, 'wallet/patient');
+                wallet2 = await buildWallet(Wallets, walletPath);
+            
             }else{
                 walletPath = path.join(__dirname, 'wallet/doctor');
+                wallet1 = await buildWallet(Wallets, walletPath);
             }
-            wallet = await buildWallet(Wallets, walletPath);
+        
             adminUserId = 'doctoradmin';
             orgMSP = 'doctorMSP';
+            const respose = await registerAndEnrollUser(caClient, wallet1, orgMSP, userId, adminUserId, JSON.stringify(obj), wallet2);
         }else if(organization === 'laboratory'){
             ccp = buildCCLaboratory();
             caClient = buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
@@ -41,7 +54,7 @@ const registerUser = async (organization, userid, obj) => {
             adminUserId = 'laboratoryadmin';
             orgMSP = 'laboratoryMSP';
         }
-        const respose = await registerAndEnrollUser(caClient, wallet, orgMSP, userid, adminUserId, JSON.stringify(obj));
+        
     }catch(err){
         console.error(`Failed to register user "${userId}": ${error}`);
         process.exit(1);

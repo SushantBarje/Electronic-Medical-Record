@@ -19,14 +19,18 @@ exports.validateRole = async (allowedRole, myRole, res) => {
   }
 }
 
-exports.connectNetwork = async (userId, organization) => {
+exports.connectNetwork = async (userId, organization, role) => {
   try {
     let cpp;
     let wallet;
     
     if(organization === 'doctor'){
       ccp = buildCCDoctor();
-      const walletPath = path.join(__dirname, '../wallet/doctor');
+      let walletPath;
+      if(role === 'patient'){
+        walletPath = path.join(__dirname, '../wallet/patient');
+      }
+      walletPath = path.join(__dirname, '../wallet/doctor');
       wallet = await buildWallet(Wallets, walletPath);
 
       const identity = wallet.get(userId);

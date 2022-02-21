@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
   }
 
   if(role === PATIENT_ROLE){
-    console.log('Patientrole');
+    
   }
 
   if (user) {

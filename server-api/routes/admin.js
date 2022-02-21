@@ -8,7 +8,7 @@ const { ADMIN_ROLE, DOCTOR_ROLE, validateRole, createRedisConnection, PATIENT_RO
 const { buildWallet, buildCCDoctor, buildCCLaboratory } = require('../utils/AppUtils');
 const { buildCAClient, registerAndEnrollUser } = require('../utils/CAUtils');
 const FabricCAServices = require('fabric-ca-client');
-
+const { registerUser } = require('../registerUser');
 
 router.post('/doctors/register', auth.verify, async (req, res) => {
     await validateRole(ADMIN_ROLE, req.user.role, res);
@@ -58,15 +58,23 @@ router.post('/patient/register', auth.verify, async (req, res) => {
     
     try{
         await validateRole(ADMIN_ROLE, req.user.role, res);
-        const {...args} = req.body
-        const network = await connectNetwork(req.user.username, req.user.org);
+        
+        const network = await connectNetwork(req.user.username, req.user.org, 'patient');
     
-        let patientId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
-        console.log(parseInt(patientId.slice(3)) + 1);
-        patientLastId = 'PID' + (parseInt(patientId.slice(3)) + 1);
-        args.patientId = patientLastId;
-        const response = await network.contract.submitTransaction('AdminContract:createPatient', JSON.stringify(args));
+        let patientLastId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
+        console.log(parseInt(patientLastId.slice(3)));
+        console.log(parseInt(patientLastId.slice(3)) + 1);
+        patientId = 'PID' + (parseInt(patientLastId.slice(3)) + 1);
+        console.log(patientId);
+        req.body.patientId = patientId;
+        req.body.password = Math.random().toString(36).slice(-8);
+        req.body.updatedBy = req.user.username;
+        req.body.role = 'patient';
+        const response = await network.contract.submitTransaction('AdminContract:createPatient', JSON.stringify(req.body));
         console.log(response.toString());
+
+        const result = await registerUser(req.user.org, req.user.username, req.body);
+
         if (response.error) {
             res.status(400).send(response.error);
         }
@@ -74,14 +82,12 @@ router.post('/patient/register', auth.verify, async (req, res) => {
     
         // Disconnect from the gateway.
         await network.gateway.disconnect();
-        res.status(200).json('ok done');
+        res.status(200).json({error: 'none', message: 'Patient Registeration succesfull', username: req.body.patientId, password: req.body.password});
     }catch(error){
         console.log(error);
         res.status(401).json(error);
     }
-    
-    //const result = await network.contract.submitTransaction()
-})
+});
 
 router.get('/doctors/all/:organization', auth.verify, async (req, res) => {
     await validateRole(ADMIN_ROLE, req.user.role, res);
