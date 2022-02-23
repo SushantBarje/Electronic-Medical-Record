@@ -1,28 +1,34 @@
 var express = require('express');
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
-const { ADMIN_ROLE, DOCTOR_ROLE, PATIENT_ROLE, createRedisConnection } = require('../utils/utils');
+const crypto = require('crypto');
+const { ADMIN_ROLE, DOCTOR_ROLE, PATIENT_ROLE, createRedisConnection, connectNetwork } = require('../utils/utils');
 var router = express.Router();
 
 let refreshTokens = [];
 
 router.post('/login', async (req, res) => {
-  const { username, password, role, organization } = req.body;
-  console.log(req.body);
+  const { username, password, role, organization = 'doctor' } = req.body;
+
   let user = false;
-  if(role === ADMIN_ROLE || role === DOCTOR_ROLE){
+  if (role === ADMIN_ROLE || role === DOCTOR_ROLE) {
     const redisClient = await createRedisConnection(organization);
     user = (password == (await redisClient.GET(username)));
     console.log(user);
   }
 
-  if(role === PATIENT_ROLE){
+  if (role === PATIENT_ROLE) {
+    const network = await connectNetwork(username, organization, PATIENT_ROLE);
+
+    const result = await network.contract.evaluateTransaction('PatientContract:getPatient', username);
+    user = JSON.parse(result).password.toString('utf8') == crypto.createHash('sha256').update(password).digest('hex');
     
+    await network.gateway.disconnect();
   }
 
   if (user) {
-    const accessToken = auth.generateAccessToken({username: username, role: role, organization: organization});
-    const refreshToken = auth.generateRefreshToken({username: username, role: role, organization: organization});
+    const accessToken = auth.generateAccessToken({ username: username, role: role, organization: organization });
+    const refreshToken = auth.generateRefreshToken({ username: username, role: role, organization: organization });
     refreshTokens.push(refreshToken);
     res.status(200).json({
       accessToken,
@@ -60,9 +66,9 @@ router.delete('/logout', (req, res) => {
 });
 
 router.delete('/user/:userId', auth.verify, (req, res) => {
-  if(req.user.id === req.params.role || req.user.role){
+  if (req.user.id === req.params.role || req.user.role) {
     res.status(200).json("User is deleted");
-  }else{
+  } else {
     res.status(401).json("You are not authorized");
   }
 })

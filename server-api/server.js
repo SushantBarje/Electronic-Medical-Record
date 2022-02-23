@@ -20,9 +20,13 @@ app.use(cookieParser());
 var userRouter = require('./routes/user');
 var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
+var doctorRouter = require('./routes/doctor');
+var patientRouter = require('./routes/patient');
 
 app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/doctor', doctorRouter);
+app.use('/api/patient', patientRouter);
 
 const PORT = process.env.PORT || 4000;
 

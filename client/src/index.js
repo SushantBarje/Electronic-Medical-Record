@@ -12,8 +12,8 @@ ReactDOM.render(
     <BrowserRouter>
       <App />
       <Routes>
-        <Route path="/" element={<Login loginFor={"User"}/>} />
-        <Route path="/admin/login" element={<Login loginFor={"Admin"}/>}></Route>
+        <Route path="/" element={<Login/>} />
+        <Route path="/admin/login" element={<Login/>}></Route>
         <Route path="/patient/dashboard" element={<PatientDashboard/>}></Route>
       </Routes>
     </BrowserRouter>

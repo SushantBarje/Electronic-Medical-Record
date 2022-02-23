@@ -52,7 +52,7 @@ export default function Login(props) {
     if (role === 'admin' || role === 'doctor') {
       return (
         <FormControl margin="normal" required fullWidth>
-          <InputLabel id="select-organization">Select Organization</InputLabel>
+          <InputLabel id="select-organization">Organization</InputLabel>
           <Select
             labelId="select-organization"
             id="select-organization"

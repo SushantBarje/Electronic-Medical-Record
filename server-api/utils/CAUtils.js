@@ -51,8 +51,8 @@ exports.enrollAdmin =  async(caClient, wallet, orgMspId, adminUserId, adminUserP
 exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, adminUserId, obj, wallet2 = '', affiliation) => {
 	try {
 		// Check to see if we've already enrolled the user
-		console.log(userId);
-		if(wallet2 !== '' || wallet2 !== null){
+
+		if(wallet2 !== ''){
 			const userIdentity = await wallet2.get(userId);
 			if (userIdentity) {
 				console.log(`An identity for the user ${userId} already exists in the wallet`);
@@ -62,7 +62,7 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 	
 		// Must use an admin to register a new user
 		const adminIdentity = await wallet1.get(adminUserId);
-		console.log(adminIdentity);
+
 		if (!adminIdentity) {
 			console.log('An identity for the admin user does not exist in the wallet');
 			console.log('Enroll the admin user before retrying');
@@ -142,6 +142,7 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 			mspId: orgMspId,
 			type: 'X.509',
 		};
+
 		if(wallet2 !== '' || wallet2 !== null){
 			await wallet2.put(userId, x509Identity);
 		}else{
