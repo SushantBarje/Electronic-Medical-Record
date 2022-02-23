@@ -44,7 +44,7 @@ exports.registerUser = async (organization, userId, obj) => {
             }
         
             adminUserId = 'doctoradmin';
-            orgMSP = 'doctorMSP';
+            orgMSP = 'DoctorMSP';
             const respose = await registerAndEnrollUser(caClient, wallet1, orgMSP, userId, adminUserId, JSON.stringify(obj), wallet2);
         }else if(organization === 'laboratory'){
             ccp = buildCCLaboratory();
@@ -52,7 +52,7 @@ exports.registerUser = async (organization, userId, obj) => {
             walletPath = path.join(__dirname, 'wallet/laboratory');
             wallet = await buildWallet(Wallets, walletPath);
             adminUserId = 'laboratoryadmin';
-            orgMSP = 'laboratoryMSP';
+            orgMSP = 'LaboratoryMSP';
         }
         
     }catch(err){

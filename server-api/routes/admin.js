@@ -27,13 +27,13 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
             const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/doctor'));
             //console.log(await registerAndEnrollUser(caClient, wallet, 'doctorMSP', username, req.user.username, obj))
-            response = await registerAndEnrollUser(caClient, wallet, 'doctorMSP', username, req.user.username, obj);
+            response = await registerAndEnrollUser(caClient, wallet, 'DoctorMSP', username, req.user.username, obj);
 
         } else if (req.user.org === 'laboratory') {
             const ccp = buildCCLaboratory();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
             const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/laboratory'));
-            response = await registerAndEnrollUser(caClient, wallet, 'laboratoryMSP', username, req.user.username, obj);
+            response = await registerAndEnrollUser(caClient, wallet, 'LaboratoryMSP', username, req.user.username, obj);
         }
 
         if (response.error !== 'none') {
@@ -55,12 +55,12 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
  */
 
 router.post('/patient/register', auth.verify, async (req, res) => {
-    
-    try{
+
+    try {
         await validateRole(ADMIN_ROLE, req.user.role, res);
-        
-        const network = await connectNetwork(req.user.username, req.user.org, 'patient');
-    
+
+        const network = await connectNetwork(req.user.username, req.user.org, 'doctor');
+
         let patientLastId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
         console.log(parseInt(patientLastId.slice(3)));
         console.log(parseInt(patientLastId.slice(3)) + 1);
@@ -79,11 +79,11 @@ router.post('/patient/register', auth.verify, async (req, res) => {
             res.status(400).send(response.error);
         }
         console.log(`Transaction has been evaluated, result is: ${response}`);
-    
+
         // Disconnect from the gateway.
         await network.gateway.disconnect();
-        res.status(200).json({error: 'none', message: 'Patient Registeration succesfull', username: req.body.patientId, password: req.body.password});
-    }catch(error){
+        res.status(200).json({ error: 'none', message: 'Patient Registeration succesfull', username: req.body.patientId, password: req.body.password });
+    } catch (error) {
         console.log(error);
         res.status(401).json(error);
     }
@@ -129,6 +129,19 @@ router.get('/doctors/all/:organization', auth.verify, async (req, res) => {
     }
 
     res.status(200).json({ error: 'none', message: result });
+});
+
+router.get('/patients/all/:organization', auth.verify, async (req, res) => {
+    await validateRole(ADMIN_ROLE, req.user.role, res);
+    try {
+        const network = await connectNetwork(req.user.username, req.user.org);
+        let result = await network.contract.evaluateTransaction('AdminContract:getAllPatient');
+        result = JSON.parse(result);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json(error);
+    }
+
 });
 
 // router.get('/', async (req, res) => {

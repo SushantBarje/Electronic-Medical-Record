@@ -29,13 +29,15 @@ exports.connectNetwork = async (userId, organization, role) => {
       let walletPath;
       if(role === 'patient'){
         walletPath = path.join(__dirname, '../wallet/patient');
+      }else{
+        walletPath = path.join(__dirname, '../wallet/doctor');
       }
-      walletPath = path.join(__dirname, '../wallet/doctor');
+      
       wallet = await buildWallet(Wallets, walletPath);
 
       const identity = wallet.get(userId);
       if(!identity){
-        return {error: "userId not exists"};
+        console.log({error: "userId not exists"});
       }
     }else if(organization === 'laboratory'){
       ccp = buildCCLaboratory();
@@ -44,11 +46,11 @@ exports.connectNetwork = async (userId, organization, role) => {
 
       const identity = wallet.get(userId);
       if(!identity){
-        return {error: "userId not exists"};
+        console.log({error: "userId not exists"});
       }
     }
-      const gateway = new Gateway();
-      await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: true } })
+    const gateway = new Gateway();
+    await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: true } })
       
       const network = await gateway.getNetwork('hospital');
       const contract = network.getContract('basic');
@@ -63,14 +65,14 @@ exports.connectNetwork = async (userId, organization, role) => {
       return networkObj;
   }catch(err){
     console.log(`Error while establishing network. ${err}`);
-    return {error: err, message: `Error while establishing network. ${err}`};
+    return {error: err, message: `Error while establishing network. ${err}`}; 
   }
 }
 
 exports.createRedisConnection = async (org) => {
 
   let url;
-  console.log(org);
+  
   if (org === 'doctor') {
     url = 'redis://:doctorpassword@127.0.0.1:6379';
   } else if (org === 'laboratory') {
