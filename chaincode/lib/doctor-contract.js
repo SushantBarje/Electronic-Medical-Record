@@ -69,7 +69,10 @@ class DoctorContract extends CommonContract {
     }
 
     async updatePatientRecord(ctx, obj) {
+        console.log(obj);
         obj = JSON.parse(obj);
+        console.log(obj);
+        console.log(obj.patientId);
         let change = false;
         let patient = await super.getPatient(ctx, obj.patientId);
         console.log(patient);
@@ -95,7 +98,7 @@ class DoctorContract extends CommonContract {
 
         if (!change) return;
 
-        await ctx.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
+        await ctx.stub.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
     }
 
     async getClientID(ctx) {
