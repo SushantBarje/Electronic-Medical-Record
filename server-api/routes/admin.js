@@ -26,7 +26,6 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
             const ccp = buildCCDoctor();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
             const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/doctor'));
-            //console.log(await registerAndEnrollUser(caClient, wallet, 'doctorMSP', username, req.user.username, obj))
             response = await registerAndEnrollUser(caClient, wallet, 'DoctorMSP', username, req.user.username, obj);
 
         } else if (req.user.org === 'laboratory') {
@@ -97,7 +96,7 @@ router.get('/doctors/all/:organization', auth.verify, async (req, res) => {
     const networkObj = await connectNetwork(req.user.username, req.user.org);
 
     const users = networkObj.gateway.identityContext.user;
-
+    
     let caClient
     if (req.params.organization === 'doctor') {
         const ccp = buildCCDoctor();
@@ -109,14 +108,15 @@ router.get('/doctors/all/:organization', auth.verify, async (req, res) => {
 
     const identitiesArray = await caClient.newIdentityService().getAll(users);
     const identities = identitiesArray.result.identities;
-
+    console.log(identities);
     const result = [];
 
     for (let i = 0; i < identities.length; i++) {
         let temp = {};
-        if (identities[i].type === 'client' && identities[i].id !== req.user.username && identities[i].id !== 'user1') {
+        if (identities[i].type === 'client' && identities[i].id !== req.user.username && identities[i].id !== 'user1' && identities[i].attrs[2].value !== 'patient') {
             temp.id = identities[i].id;
             let attrs = identities[i].attrs;
+
             for (let j = 0; j < attrs.length; j++) {
                 if (attrs[j].id !== req.user.username) {
                     if (attrs[j].name === 'firstName' || attrs[j].name === 'lastName' || attrs[j].name === 'role' || attrs[j].name === 'organization' || attrs[j].name === 'speciality') {

@@ -22,7 +22,7 @@ exports.buildCAClient = (FabricCAServices, ccp, caHostName) => {
 	return caClient;
 }
 
-exports.enrollAdmin =  async(caClient, wallet, orgMspId, adminUserId, adminUserPassword) => {
+exports.enrollAdmin = async (caClient, wallet, orgMspId, adminUserId, adminUserPassword) => {
 	try {
 		// Check to see if we've already enrolled the admin user.
 		const identity = await wallet.get(adminUserId);
@@ -52,21 +52,27 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 	try {
 		// Check to see if we've already enrolled the user
 
-		if(wallet2 !== ''){
+		if (wallet2 !== '') {
 			const userIdentity = await wallet2.get(userId);
 			if (userIdentity) {
 				console.log(`An identity for the user ${userId} already exists in the wallet`);
-				return {error: 'already', message : 'User already exists'};
+				return { error: 'already', message: 'User already exists' };
+			}
+		} else {
+			const userIdentity = await wallet1.get(userId);
+			if (userIdentity) {
+				console.log(`An identity for the user ${userId} already exists in the wallet`);
+				return { error: 'already', message: 'User already exists' };
 			}
 		}
-	
+
 		// Must use an admin to register a new user
 		const adminIdentity = await wallet1.get(adminUserId);
 
 		if (!adminIdentity) {
 			console.log('An identity for the admin user does not exist in the wallet');
 			console.log('Enroll the admin user before retrying');
-			return {error: 'not admin', message: 'Admin not exists'};
+			return { error: 'not admin', message: 'Admin not exists' };
 		}
 
 		// build a user object for authenticating with the CA
@@ -108,6 +114,7 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 				ecert: true,
 			}],
 		}, adminUser);
+
 		const enrollment = await caClient.enroll({
 			enrollmentID: userId,
 			enrollmentSecret: secret,
@@ -143,16 +150,17 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 			type: 'X.509',
 		};
 
-		if(wallet2 !== '' || wallet2 !== null){
+		if (wallet2 !== '') {
+
 			await wallet2.put(userId, x509Identity);
-		}else{
+		} else {
 			await wallet1.put(userId, x509Identity);
 		}
-		
+
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
-		return {error: 'none', message : 'Successfully registered and enrolled user'};
+		return { error: 'none', message: 'Successfully registered and enrolled user' };
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
-		return {error: 'already', message : 'User already exists'};
+		return { error: 'already', message: 'User already exists' };
 	}
 }
