@@ -10,8 +10,27 @@ const { buildCAClient, registerAndEnrollUser } = require('../utils/CAUtils');
 const FabricCAServices = require('fabric-ca-client');
 const { registerUser } = require('../registerUser');
 
+const checkEmpty = (req) => {
+    const keys = Object.keys(req.body);
+    console.log(keys);
+    if(keys.length === 0){
+        return 1;
+    }
+    keys.forEach((key, index) => {
+        if(req.body[key] === "" || req.body[key] === null || req.body[key] === undefined || req.body[key] === "undefined"){
+            return 1;
+        }
+    });
+    return 0;
+}
+
+
 router.post('/doctors/register', auth.verify, async (req, res) => {
     await validateRole(ADMIN_ROLE, req.user.role, res);
+    let checkE = checkEmpty(req);
+    if(checkE){
+        res.status(500).json({error: "empty", message: "Empty Input"});
+    }
     const { username, password } = req.body;
 
     const redisClient = await createRedisConnection(req.user.org);
@@ -54,10 +73,12 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
  */
 
 router.post('/patient/register', auth.verify, async (req, res) => {
-
+    await validateRole(ADMIN_ROLE, req.user.role, res);
+    let checkE = checkEmpty(req);
+    if(checkE){
+        res.status(500).json({error: "empty", message: "Empty Input"});
+    }
     try {
-        await validateRole(ADMIN_ROLE, req.user.role, res);
-
         const network = await connectNetwork(req.user.username, req.user.org, 'doctor');
 
         let patientLastId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
