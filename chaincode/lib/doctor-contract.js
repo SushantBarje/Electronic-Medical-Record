@@ -35,7 +35,7 @@ class DoctorContract extends CommonContract {
     }
 
     async getAllPatient(ctx, doctorId) {
-        console.log("DoctorId is: "+doctorId);
+        console.log("DoctorId is: " + doctorId);
         let result = await super.getAllPatient(ctx);
         result = JSON.parse(result);
         const permissionAssets = [];
@@ -107,36 +107,51 @@ class DoctorContract extends CommonContract {
     }
 
     async updatePatientRecord(ctx, obj) {
+        
         obj = JSON.parse(obj);
+        console.log(obj);
         let change = false;
         let patient = await super.getPatient(ctx, obj.patientId);
         console.log('check permission');
         console.log(patient);
         console.log(patient.permissionGranted.includes(obj.updatedBy));
+        if(patient.permissionGranted.includes(obj.updatedBy)){
 
-        if (obj.symptoms !== null && obj.symptoms !== '' && obj.symptoms !== patient.symptoms) {
-            patient.symptoms = obj.symptoms;
-            change = true;
+            if (obj.symptoms !== null && obj.symptoms !== '' && obj.symptoms !== patient.symptoms) {
+                patient.symptoms = obj.symptoms;
+                change = true;
+            }
+
+            if (obj.diagnosis !== null && obj.diagnosis !== '' && obj.diagnosis !== patient.diagnosis) {
+                patient.diagnosis = obj.diagnosis;
+                change = true;
+            }
+
+            if (obj.treatment !== null && obj.treatment !== '' && obj.treatment !== patient.treatment) {
+                patient.treatment = obj.treatment;
+                change = true;
+            }
+
+            if (obj.other !== null && obj.other !== '' && obj.other !== patient.other) {
+                patient.other = obj.other;
+                change = true;
+            }
+
+            patient.updatedBy = obj.updatedBy;
+
+            if (!change) {
+                return;
+            } else {
+                await ctx.stub.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
+            }
+        }else{
+            return false;
         }
+    }
 
-        if (obj.diagnosis !== null && obj.diagnosis !== '' && obj.diagnosis !== patient.diagnosis) {
-            patient.diagnosis = obj.diagnosis;
-            change = true;
-        }
-
-        if (obj.treatment !== null && obj.treatment !== '' && obj.treatment !== patient.treatment) {
-            patient.treatment = obj.treatment;
-            change = true;
-        }
-
-        if (obj.other !== null && obj.other !== '' && obj.other !== patient.other) {
-            patient.other = obj.other;
-            change = true;
-        }
-
-        if (!change) return;
-
-        await ctx.stub.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
+    async getDoctorAccessToPatient(ctx, patientId){
+        let patient = await super.getPatient(ctx, patientId);
+        
     }
 
     async getClientID(ctx) {

@@ -10,11 +10,11 @@ const { Context } = require('fabric-contract-api');
 
 class PatientContract extends CommonContract {
 
-    async getPatient(ctx, patientId){
+    async getPatient(ctx, patientId) {
         return await super.getPatient(ctx, patientId);
     }
 
-    async updatePatientDetails(ctx, obj){
+    async updatePatientDetails(ctx, obj) {
         obj = JSON.parse(obj);
 
         let firstName = obj.firstName;
@@ -30,39 +30,39 @@ class PatientContract extends CommonContract {
 
         const patient = await this.getPatient(ctx, patientId);
         console.log(patient);
-        if(firstName !== null && firstName !== '' && patient.Record.firstName !== firstName){
+        if (firstName !== null && firstName !== '' && patient.Record.firstName !== firstName) {
             patient.Record.firstName = firstName;
             isChanged = true;
         }
-        if(middelName !== null && middelName !== '' && patient.Record.middelName !== middelName){
+        if (middelName !== null && middelName !== '' && patient.Record.middelName !== middelName) {
             patient.Record.middelName = middelName;
             isChanged = true;
         }
-        if(lastName !== null && lastName !== '' && patient.Record.lastName !== lastName){
+        if (lastName !== null && lastName !== '' && patient.Record.lastName !== lastName) {
             patient.Record.lastName = lastName;
             isChanged = true;
         }
-        if(age !== null && age !== '' && patient.Record.age !== age){
+        if (age !== null && age !== '' && patient.Record.age !== age) {
             patient.Record.age = age;
             isChanged = true;
         }
-        if(address !== null && address !== '' && patient.Record.address !== address){
+        if (address !== null && address !== '' && patient.Record.address !== address) {
             patient.Record.address = address;
             isChanged = true;
         }
-        if(phoneNumber !== null && phoneNumber !== '' && patient.Record.phoneNumber !== phoneNumber){
+        if (phoneNumber !== null && phoneNumber !== '' && patient.Record.phoneNumber !== phoneNumber) {
             patient.Record.phoneNumber = phoneNumber;
             isChanged = true;
         }
-        if(allergies !== null && allergies !== '' && patient.Record.allergies !== allergies){
+        if (allergies !== null && allergies !== '' && patient.Record.allergies !== allergies) {
             patient.Record.allergies = allergies;
             isChanged = true;
         }
-        if(updatedBy !== null && updatedBy !== ''){
+        if (updatedBy !== null && updatedBy !== '') {
             patient.Record.updatedBy = updatedBy;
         }
 
-        if(!isChanged){
+        if (!isChanged) {
             return;
         }
 
@@ -77,8 +77,8 @@ class PatientContract extends CommonContract {
         console.log("restult");
         console.log(result);
         result = JSON.parse(result);
-        
-        for(let i = 0; i < result.length; i++){
+
+        for (let i = 0; i < result.length; i++) {
             const obj = result[i];
             result[i] = {
                 tx_id: obj.TxId,
@@ -90,24 +90,26 @@ class PatientContract extends CommonContract {
                 phoneNumber: obj.Record.phoneNumber,
                 address: obj.Record.address,
                 age: obj.Record.age,
+                allergies: obj.Record.allergies,
                 bloodGroup: obj.Record.bloodGroup,
                 updatedBy: obj.Record.updatedBy,
                 diagnosis: obj.Record.diagnosis,
                 treatment: obj.Record.treatment,
                 other: obj.Record.other,
+                followUp: obj.Record.followUp
             }
         }
         console.log("RESULTT");
         console.log(result);
         return result;
-    } 
+    }
 
-    async grantAccess(ctx, obj){
+    async grantAccess(ctx, obj) {
         obj = JSON.parse(obj)
         let patientId = obj.patientId;
         let doctorId = obj.doctorId;
         const patient = await this.getPatient(ctx, patientId);
-        if(!patient.permissionGranted.includes(doctorId)){
+        if (!patient.permissionGranted.includes(doctorId)) {
             patient.permissionGranted.push(doctorId);
             patient.updatedBy = patientId;
         }
@@ -115,12 +117,12 @@ class PatientContract extends CommonContract {
         await ctx.stub.putState(patientId, Buffer.from(JSON.stringify(patient)));
     }
 
-    async revokeAccess(ctx, obj){
+    async revokeAccess(ctx, obj) {
         obj = JSON.parse(obj);
         let patientId = obj.patientId;
         let doctorId = obj.doctorId;
         const patient = await this.getPatient(ctx, patientId);
-        if(patient.permissionGranted.includes(doctorId)){
+        if (patient.permissionGranted.includes(doctorId)) {
             patient.permissionGranted = patient.permissionGranted.filter(doctor => doctor !== doctorId);
             patient.updatedBy = patientId;
         }

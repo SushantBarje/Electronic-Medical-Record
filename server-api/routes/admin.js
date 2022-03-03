@@ -24,7 +24,6 @@ const checkEmpty = (req) => {
     return 0;
 }
 
-
 router.post('/doctors/register', auth.verify, async (req, res) => {
     await validateRole(ADMIN_ROLE, req.user.role, res);
     let checkE = checkEmpty(req);

@@ -15,12 +15,24 @@ router.get('/patient/all', auth.verify, async (req, res) => {
   const networkObj = await connectNetwork(req.user.username, req.user.org);
   const response = await networkObj.contract.evaluateTransaction('DoctorContract:getAllPatient', req.user.username)
   console.log(response.toString());
-  //const parsedResponse = await JSON.parse(respone)
-  if(response.length){
-    res.status(200).send({error: "none", message: await JSON.parse(response)});
+  if (response.length) {
+    res.status(200).send({ error: "none", message: await JSON.parse(response) });
     console.log("Record found");
-  }else{
+  } else {
     console.log("Record empty");
+  }
+})
+
+router.get('/patient/record/:patientId/history', auth.verify, async (req, res) => {
+  await validateRole(DOCTOR_ROLE, req.user.role, res);
+  let patientId = req.params.patientId;
+  const networkObj = await connectNetwork(req.user.username, req.user.org);
+  try {
+    const response = await networkObj.contract.evaluateTransaction('DoctorContract:getPatientHistory', patientId);
+    console.log(response.toString());
+    res.status(200).json({ error: "none", message: await JSON.parse(response) });
+  } catch (error) {
+    res.status(400).json(error);
   }
 })
 
@@ -31,13 +43,19 @@ router.patch('/patient/record/add/:patientId', auth.verify, async (req, res) => 
   args.updatedBy = req.user.username;
   console.log(args);
   const networkObj = await connectNetwork(req.user.username, req.user.org);
-  try{
-    const response = await networkObj.contract.submitTransaction('DoctorContract:updatePatientRecord', JSON.stringify(args));
+  try {
+    let response = await networkObj.contract.evaluateTransaction('DoctorContract:getPatient', patientId);
+    console.log(response);
+    response = await networkObj.contract.submitTransaction('DoctorContract:updatePatientRecord', JSON.stringify(args));
     console.log(response);
     await networkObj.gateway.disconnect();
-    res.status(200).json({error:'none', message: response.toString()});
-  }catch(error){
-    res.status(500).json({error:'failed', message:'Failed to submit transaction'});
+    if (response.toString() == 'false') {
+      res.status(200).json({ error: 'none', message: "You are not Authorized." });
+    } else {
+      res.status(200).json({ error: 'none', message: response.toString() });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'failed', message: 'Failed to submit transaction' });
   }
 });
 
