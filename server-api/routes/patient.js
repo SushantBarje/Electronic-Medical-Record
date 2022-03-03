@@ -11,11 +11,11 @@ const FabricCAServices = require('fabric-ca-client');
 const { createCluster } = require('redis');
 
 router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
-  await validateRole(PATIENT_ROLE, req.user.role, res);
+    await validateRole(PATIENT_ROLE, req.user.role, res);
     if (req.params.organization === "" || req.params.organization.length === 0 || req.params.organization !== req.user.org) {
         res.status(400).json({ error: 'noOrg', message: 'Organization not found' });
     }
-    
+
     const networkObj = await connectNetwork(req.user.username, req.params.organization, 'patient');
     const users = networkObj.gateway.identityContext.user;
     console.log(users);
@@ -28,7 +28,7 @@ router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
         caClient = buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
     }
 
-    
+
     const idService = caClient.newIdentityService();
     console.log(idService);
     const userList = await idService.getAll(users);
@@ -66,9 +66,10 @@ router.patch('/doctors/grant/:doctor', auth.verify, async (req, res) => {
     const network = await connectNetwork(req.user.username, req.user.org, 'patient');
     const patientId = req.user.username;
 
-    let args = { patientId: patientId, doctorId: doctorId};
+    let args = { patientId: patientId, doctorId: doctorId };
     const response = await network.contract.submitTransaction('PatientContract:grantAccess', [JSON.stringify(args)]);
     console.log(response.toString());
+    res.status(200).json({ error: "none", message: "Access Given to " + doctorId });
 });
 
 router.patch('/doctors/remove/:doctor', auth.verify, async (req, res) => {
@@ -78,10 +79,20 @@ router.patch('/doctors/remove/:doctor', auth.verify, async (req, res) => {
     const network = await connectNetwork(req.user.username, req.user.org, 'patient');
     const patientId = req.user.username;
 
-    let args = { patientId: patientId, doctorId: doctorId};
+    let args = { patientId: patientId, doctorId: doctorId };
     const response = await network.contract.submitTransaction('PatientContract:revokeAccess', [JSON.stringify(args)]);
     console.log(response.toString());
-    res.send(response);
+    res.status(200).json({ error: "none", message: "Remove Access to " + doctorId });
 });
+
+router.get('/patient/record/all/history', auth.verify, async (req, res) => {
+    await validateRole(PATIENT_ROLE, req.user.role, res);
+    const patientId = req.user.username;
+    const network = await connectNetwork(req.user.username, req.user.org, 'patient');
+
+    const response = await network.contract.evaluateTransaction('PatientContract:getPatientHistory', patientId);
+    console.log(response);
+    res.json(response);
+})
 
 module.exports = router;

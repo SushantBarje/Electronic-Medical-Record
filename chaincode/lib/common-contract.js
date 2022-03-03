@@ -105,14 +105,11 @@ class CommonContract extends Contract {
             console.log(res.value.value.toString());
             if (res.value !== undefined && res.value && res.value.value.toString()) {
                 let jsonRes = {};
-                console.log(res.value.value.toString('utf8'));
-
                 if (isHistory && isHistory === true) {
                     jsonRes.Key = res.value.key;
                     jsonRes.TxId = res.value.txId;
                     jsonRes.Timestamp = res.value.timestamp;
                     try {
-                        console.log("JSON.parse(res.value.value.toString('utf8'))");
                         jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
                     } catch (err) {
                         console.log(err);
@@ -127,6 +124,7 @@ class CommonContract extends Contract {
                         jsonRes.Record = res.value.value.toString('utf8');
                     }
                 }
+                console.log(jsonRes);
                 allResults.push(jsonRes);
             }
         }
