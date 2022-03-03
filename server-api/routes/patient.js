@@ -92,7 +92,7 @@ router.get('/patient/record/all/history', auth.verify, async (req, res) => {
 
     const response = await network.contract.evaluateTransaction('PatientContract:getPatientHistory', patientId);
     console.log(response);
-    res.json(response);
+    res.json(await JSON.parse(response));
 })
 
 module.exports = router;
