@@ -48,27 +48,34 @@ exports.enrollAdmin = async (caClient, wallet, orgMspId, adminUserId, adminUserP
 	}
 }
 
-exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, adminUserId, obj, wallet2 = '', affiliation) => {
+exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, adminUserId, obj, affiliation) => {
 	try {
 		// Check to see if we've already enrolled the user
-
-		if (wallet2 !== '') {
-			const userIdentity = await wallet2.get(userId);
-			if (userIdentity) {
-				console.log(`An identity for the user ${userId} already exists in the wallet`);
-				return { error: 'already', message: 'User already exists' };
-			}
-		} else {
-			const userIdentity = await wallet1.get(userId);
-			if (userIdentity) {
-				console.log(`An identity for the user ${userId} already exists in the wallet`);
-				return { error: 'already', message: 'User already exists' };
-			}
+		console.log(userId);
+		const userIdentity = await wallet.get(userId);
+		console.log("userid " + userId);
+		if(userIdentity){
+			console.log(`An identity for user ${userId} already exists in the wallet`);
+			throw new Error(`An identity for user ${userId} already exists in the wallet`);
 		}
+		console.log(adminUserId);
+		// if (wallet2 !== '') {
+		// 	const userIdentity = await wallet2.get(userId);
+		// 	if (userIdentity) {
+		// 		console.log(`An identity for the user ${userId} already exists in the wallet`);
+		// 		return { error: 'already', message: 'User already exists' };
+		// 	}
+		// } else {
+		// 	const userIdentity = await wallet1.get(userId);
+		// 	if (userIdentity) {
+		// 		console.log(`An identity for the user ${userId} already exists in the wallet`);
+		// 		return { error: 'already', message: 'User already exists' };
+		// 	}
+		// }
 
 		// Must use an admin to register a new user
-		const adminIdentity = await wallet1.get(adminUserId);
-
+		const adminIdentity = await wallet.get(adminUserId);
+		console.log(adminIdentity);
 		if (!adminIdentity) {
 			console.log('An identity for the admin user does not exist in the wallet');
 			console.log('Enroll the admin user before retrying');
@@ -76,9 +83,11 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 		}
 
 		// build a user object for authenticating with the CA
-		const provider = wallet1.getProviderRegistry().getProvider(adminIdentity.type);
+		console.log("Asdf");
+		const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
-
+		console.log(adminUser);
+		console.log("adfasdf");
 		obj = JSON.parse(obj);
 		const firstName = obj.firstName;
 		const lastName = obj.lastName;
@@ -150,12 +159,7 @@ exports.registerAndEnrollUser = async (caClient, wallet1, orgMspId, userId, admi
 			type: 'X.509',
 		};
 
-		if (wallet2 !== '') {
-
-			await wallet2.put(userId, x509Identity);
-		} else {
-			await wallet1.put(userId, x509Identity);
-		}
+		await wallet.put(userId, x509Identity);
 
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
 		return { error: 'none', message: 'Successfully registered and enrolled user' };

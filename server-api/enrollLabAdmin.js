@@ -17,7 +17,7 @@ const doctorMSPID = 'LaboratoryMSP';
 const caHostName = 'ca.laboratory.hospital_network.com';
 const labAdminUsername = 'laboratoryadmin';
 const labAdminPassword = 'laboratorypw';
-const walletPath = path.join(__dirname, 'wallet/laboratory');
+const walletPath = path.join(__dirname, 'wallet');
 
 exports.enrollLabAdmin = async () => {
   try {
