@@ -43,13 +43,13 @@ router.post('/doctors/register', auth.verify, async (req, res) => {
         if (req.user.org === 'doctor') {
             const ccp = buildCCDoctor();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
-            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/doctor'));
+            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
             response = await registerAndEnrollUser(caClient, wallet, 'DoctorMSP', username, req.user.username, obj);
 
         } else if (req.user.org === 'laboratory') {
             const ccp = buildCCLaboratory();
             const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
-            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet/laboratory'));
+            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
             response = await registerAndEnrollUser(caClient, wallet, 'LaboratoryMSP', username, req.user.username, obj);
         }
 
@@ -81,17 +81,13 @@ router.post('/patient/register', auth.verify, async (req, res) => {
         const network = await connectNetwork(req.user.username, req.user.org, 'doctor');
 
         let patientLastId = await network.contract.evaluateTransaction('AdminContract:getLastPatientId');
-        console.log(parseInt(patientLastId.slice(3)));
-        console.log(parseInt(patientLastId.slice(3)) + 1);
         patientId = 'PID' + (parseInt(patientLastId.slice(3)) + 1);
-        console.log(patientId);
         req.body.patientId = patientId;
         req.body.password = Math.random().toString(36).slice(-8);
         req.body.updatedBy = req.user.username;
         req.body.role = 'patient';
         const response = await network.contract.submitTransaction('AdminContract:createPatient', JSON.stringify(req.body));
         console.log(response.toString());
-
         const result = await registerUser(req.user.org, req.user.username, req.body);
 
         if (response.error) {

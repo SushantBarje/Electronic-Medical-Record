@@ -17,7 +17,7 @@ const doctorMSPID = 'DoctorMSP';
 const caHostName = 'ca.doctor.hospital_network.com';
 const doctorAdminUsername = 'doctoradmin';
 const doctorAdminPassword = 'doctorpw';
-const walletPath = path.join(__dirname, 'wallet/doctor');
+const walletPath = path.join(__dirname, 'wallet');
 
 exports.enrollDoctorAdmin = async () => {
     try {

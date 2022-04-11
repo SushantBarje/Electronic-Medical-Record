@@ -15,10 +15,10 @@ router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
     if (req.params.organization === "" || req.params.organization.length === 0 || req.params.organization !== req.user.org) {
         res.status(400).json({ error: 'noOrg', message: 'Organization not found' });
     }
-
-    const networkObj = await connectNetwork(req.user.username, req.params.organization, 'patient');
+    const userId = req.user.org === 'doctor' ? 'doctoradmin' : 'laboratoryadmin';
+    const networkObj = await connectNetwork(userId, req.params.organization);
     const users = networkObj.gateway.identityContext.user;
-    console.log(users);
+
     let caClient;
     if (req.params.organization === 'doctor') {
         const ccp = buildCCDoctor();
@@ -29,34 +29,39 @@ router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
     }
 
 
-    const idService = caClient.newIdentityService();
-    console.log(idService);
-    const userList = await idService.getAll(users);
-    console.log(userList);
-    //console.log(caClient);
-    //console.log(await caClient.newIdentityService().getAll(users));
-    //const identitiesArray = await caClient.newIdentityService().getAll(users);
-    // const identities = identitiesArray.result.identities;
+    const identitiesArray = await caClient.newIdentityService().getAll(users);
 
-    // const result = [];
+    const identities = identitiesArray.result.identities;
 
-    // for (let i = 0; i < identities.length; i++) {
-    //     let temp = {};
-    //     if (identities[i].type === 'client' && identities[i].id !== req.user.username && identities[i].id !== 'user1') {
-    //         temp.id = identities[i].id;
-    //         let attrs = identities[i].attrs;
-    //         for (let j = 0; j < attrs.length; j++) {
-    //             if (attrs[j].id !== req.user.username) {
-    //                 if (attrs[j].name === 'firstName' || attrs[j].name === 'lastName' || attrs[j].name === 'role' || attrs[j].name === 'organization' || attrs[j].name === 'speciality') {
-    //                     temp[attrs[j].name] = attrs[j].value;
-    //                 }
-    //             }
-    //         }
-    //         result.push(temp);
-    //     }
-    // }
+    const response = await networkObj.contract.evaluateTransaction('PatientContract:getPatient', req.user.username);
 
-    //res.status(200).json({ error: 'none', message: result });
+    const permissions = patient.permissionGranted;
+
+    const result = [];
+
+    for (let i = 0; i < identities.length; i++) {
+        let temp = {};
+        if (identities[i].type === 'client' && identities[i].id !== req.user.username && identities[i].id !== 'user1' && identities[i].id !== 'doctoradmin') {
+            temp.id = identities[i].id;
+            let attrs = identities[i].attrs;
+            for (let j = 0; j < attrs.length; j++) {
+                if (attrs[j].id !== req.user.username) {
+                    if (attrs[j].name === 'firstName' || attrs[j].name === 'lastName' || attrs[j].name === 'role' || attrs[j].name === 'organization' || attrs[j].name === 'speciality') {
+                        temp[attrs[j].name] = attrs[j].value;
+                    }
+                }
+            }
+            if(permissions.includes(identities[i].id)){
+                temp.permissionGranted = 1;
+            }else{
+                temp.permissionGranted = 0;
+            }
+            result.push(temp);
+        }
+    }
+    
+
+    res.status(200).json({ error: 'none', message: result });
 });
 
 router.patch('/doctors/grant/:doctor', auth.verify, async (req, res) => {

@@ -19,36 +19,48 @@ exports.validateRole = async (allowedRole, myRole, res) => {
   }
 }
 
-exports.connectNetwork = async (userId, organization, role) => {
+exports.connectNetwork = async (userId, organization) => {
   try {
     let ccp;
     let wallet;
-
-    if (organization === 'doctor') {
+    console.log(organization);
+    if(organization === 'doctor'){
       ccp = buildCCDoctor();
-      let walletPath;
-      if (role === 'patient') {
-        walletPath = path.join(__dirname, '../wallet/patient');
-      } else {
-        walletPath = path.join(__dirname, '../wallet/doctor');
-      }
-      console.log(walletPath);
-      wallet = await buildWallet(Wallets, walletPath);
-
-      const identity = wallet.get(userId);
-      if (!identity) {
-        console.log({ error: "userId not exists" });
-      }
-    } else if (organization === 'laboratory') {
+    }else{
       ccp = buildCCLaboratory();
-      let walletPath = path.join(__dirname, '../wallet/laboratory');
-      wallet = await buildWallet(Wallets, walletPath);
-
-      const identity = wallet.get(userId);
-      if (!identity) {
-        console.log({ error: "userId not exists" });
-      }
     }
+    walletPath = path.join(__dirname, '../wallet');
+    wallet = await buildWallet(Wallets, walletPath);
+    const identity = wallet.get(userId);
+    if(!identity){
+      console.log({error: `${userId} not exists`});
+    }
+
+    // if (organization === 'doctor') {
+    //   ccp = buildCCDoctor();
+    //   let walletPath;
+    //   if (role === 'patient') {
+    //     walletPath = path.join(__dirname, '../wallet/patient');
+    //   } else {
+    //     walletPath = path.join(__dirname, '../wallet/doctor');
+    //   }
+    //   console.log(walletPath);
+    //   wallet = await buildWallet(Wallets, walletPath);
+
+    //   const identity = wallet.get(userId);
+    //   if (!identity) {
+    //     console.log({ error: "userId not exists" });
+    //   }
+    // } else if (organization === 'laboratory') {
+    //   ccp = buildCCLaboratory();
+    //   let walletPath = path.join(__dirname, '../wallet/laboratory');
+    //   wallet = await buildWallet(Wallets, walletPath);
+
+    //   const identity = wallet.get(userId);
+    //   if (!identity) {
+    //     console.log({ error: "userId not exists" });
+    //   }
+    // }
     const gateway = new Gateway();
     await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: true } })
 
