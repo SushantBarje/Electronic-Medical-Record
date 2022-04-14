@@ -19,11 +19,8 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Navbar from '../layout/Navbar';
 
-import Header from '../Header/Header';
-
-const pages = [];
-const settings = [];
 
 const theme = createTheme();
 
@@ -45,6 +42,7 @@ export default function Login(props) {
       email: data.get('username'),
       password: data.get('password'),
     });
+    
   };
 
   const selectOrganizations = () => {
@@ -73,7 +71,7 @@ export default function Login(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <Header pages={pages} settings={settings}></Header>
+      <Navbar/>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
