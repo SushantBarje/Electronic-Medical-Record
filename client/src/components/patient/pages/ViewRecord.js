@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
+import Navbar from '../../layout/Navbar'
 import axios from "axios";
 const ViewRecord = () => {
   const [users, setUser] = useState([]);
@@ -14,6 +14,7 @@ const ViewRecord = () => {
   };
   return (
     <div>
+    <Navbar/>
       <div className="container-sm">
         <div className="py-4">
           <h1>View Record Page</h1>
