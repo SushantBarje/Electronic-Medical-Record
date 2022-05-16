@@ -9,6 +9,9 @@ const { buildWallet, buildCCDoctor, buildCCLaboratory } = require('../utils/AppU
 const { buildCAClient } = require('../utils/CAUtils');
 const FabricCAServices = require('fabric-ca-client');
 const { response } = require('express');
+const ipfsClient = require('ipfs-http-client');
+
+const ipfs = ipfsClient.create('http://localhost:5001');
 
 router.get('/patient/all', auth.verify, async (req, res) => {
   await validateRole(DOCTOR_ROLE, req.user.role, res);
@@ -21,7 +24,7 @@ router.get('/patient/all', auth.verify, async (req, res) => {
   } else {
     console.log("Record empty");
   }
-})
+});
 
 router.get('/patient/record/:patientId/history', auth.verify, async (req, res) => {
   await validateRole(DOCTOR_ROLE, req.user.role, res);
@@ -58,5 +61,63 @@ router.patch('/patient/record/add/:patientId', auth.verify, async (req, res) => 
     res.status(500).json({ error: 'failed', message: 'Failed to submit transaction' });
   }
 });
+
+router.patch('/patient/record/add/:patientId/lab/report/add', auth.verify, async (req, res) => {
+  await validateRole(DOCTOR_ROLE, req.user.role, res);
+  let report = {};
+  console.log(req.body);
+  console.log(req.params);
+  report.patientId = req.params.patientId;
+  report.updatedBy = req.user.username;
+  report.reportTitle = req.body.title;
+  report.reportDescription = req.body.description;
+  report.reportFile = '';
+  if(req.user.org != 'laboratory'){
+    res.status(401).json({error: "not authorized", msg: "You are not authorized"});
+  }else{
+    const networkObj = await connectNetwork(req.user.username, req.user.org);
+    const file = req.files.file;
+    const fileName = file.name;
+    const filePath = __dirname + '/../files/' + fileName;
+
+    file.mv(filePath, async (err) => {
+        if(err) return res.status(500).json({error: "not_uploaded", message: "ERROR: File not uploaded.."+ err});
+        const fileHash = await addIpfsFile(fileName, filePath);
+        report.reportFile = fileHash.toString();
+        fs.unlink(filePath, (err)=>{
+          if(err) {
+            res.status(500).json({error: "not_uploaded", message: "ERROR: File not uploaded.."+ err});
+          }
+        });
+        
+        try{ 
+          let response = await networkObj.contract.submitTransaction('DoctorContract:updatePatientRecord', JSON.stringify(report));
+          console.log(response.toString());
+          await networkObj.gateway.disconnect();
+          if (response.toString() == 'false') {
+            res.status(200).json({ error: 'none', message: "You are not Authorized." });
+          }else{
+            res.status(200).json({error: "none", message: "File Uploaded. CID: " + fileHash });
+          }
+        }catch(error){
+          res.status(500).json({ error: 'failed', message: 'Failed to submit transaction' });
+        }
+        
+    });
+  }
+
+});
+
+
+const addIpfsFile = async (fileName, filePath) => {
+  console.log("Add");
+  const file = fs.readFileSync(filePath);
+  console.log(file);
+  const fileAdded = await ipfs.add({path: fileName, content: file});
+  
+  console.log(fileAdded);
+  const {cid} = fileAdded;
+  return cid;
+}
 
 module.exports = router;

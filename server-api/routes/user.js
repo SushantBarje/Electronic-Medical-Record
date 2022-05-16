@@ -8,18 +8,20 @@ var router = express.Router();
 let refreshTokens = [];
 
 router.post('/login', async (req, res) => {
+  console.log(req.body);
   const { username, password, role, organization = 'doctor' } = req.body;
 
   let user = false;
   if (role === ADMIN_ROLE || role === DOCTOR_ROLE) {
     const redisClient = await createRedisConnection(organization);
     user = (password == (await redisClient.GET(username)));
-    console.log(user);
   }
-
+  
   if (role === PATIENT_ROLE) {
+  
     const network = await connectNetwork(username, organization, PATIENT_ROLE);
-
+    console.log(network);
+    // const userIdentity = network.error && res.status('400').json({network.error, network.msg});
     const result = await network.contract.evaluateTransaction('PatientContract:getPatient', username);
     user = JSON.parse(result).password.toString('utf8') == crypto.createHash('sha256').update(password).digest('hex');
     
@@ -32,10 +34,11 @@ router.post('/login', async (req, res) => {
     refreshTokens.push(refreshToken);
     res.status(200).json({
       accessToken,
+      role,
       refreshToken
     });
   } else {
-    res.status(400).json("User not found!");
+    res.status(401).json("User not found!");
   }
 })
 
@@ -55,6 +58,7 @@ router.post('/refresh', (req, res) => {
     refreshTokens.push(newRefreshToken);
     res.status(200).json({
       accessToken: newAccessToken,
+      role: user.role,
       refreshToken: newRefreshToken
     })
   })

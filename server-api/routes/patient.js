@@ -12,10 +12,10 @@ const { createCluster } = require('redis');
 
 router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
     await validateRole(PATIENT_ROLE, req.user.role, res);
-    if (req.params.organization === "" || req.params.organization.length === 0 || req.params.organization !== req.user.org) {
+    if (req.params.organization === "" || req.params.organization.length === 0) {
         res.status(400).json({ error: 'noOrg', message: 'Organization not found' });
     }
-    const userId = req.user.org === 'doctor' ? 'doctoradmin' : 'laboratoryadmin';
+    const userId = req.params.organization === 'doctor' ? 'doctoradmin' : 'laboratoryadmin';
     const networkObj = await connectNetwork(userId, req.params.organization);
     const users = networkObj.gateway.identityContext.user;
 
@@ -28,14 +28,13 @@ router.get("/doctors/all/:organization", auth.verify, async (req, res) => {
         caClient = buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
     }
 
-
     const identitiesArray = await caClient.newIdentityService().getAll(users);
 
     const identities = identitiesArray.result.identities;
 
     const response = await networkObj.contract.evaluateTransaction('PatientContract:getPatient', req.user.username);
-
-    const permissions = patient.permissionGranted;
+    let patientRecord = JSON.parse(response);
+    const permissions = patientRecord.permissionGranted;
 
     const result = [];
 

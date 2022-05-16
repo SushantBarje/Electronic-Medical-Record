@@ -96,7 +96,10 @@ class PatientContract extends CommonContract {
                 diagnosis: obj.Record.diagnosis,
                 treatment: obj.Record.treatment,
                 other: obj.Record.other,
-                followUp: obj.Record.followUp
+                followUp: obj.Record.followUp,
+                reportTitle: obj.Record.reportTitle,
+                reportDescription : obj.Record.reportDescription,
+                reportFile: obj.Record.reportFile
             }
         }
         console.log("RESULTT");

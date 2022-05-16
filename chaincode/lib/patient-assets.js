@@ -10,7 +10,7 @@ const crypto = require('crypto');
 
 class PatientAsset {
 
-    constructor(patientId = '', firstName = '', middleName = '', lastName = '', password = '', age = '', phoneNumber = '', address = '', bloodGroup = '', allergies = '',updatedBy = '', symptoms = '', diagnosis = '', treatment = '', other = '', followUp = '') {
+    constructor(patientId = '', firstName = '', middleName = '', lastName = '', password = '', age = '', phoneNumber = '', address = '', bloodGroup = '', allergies = '',updatedBy = '', symptoms = '', diagnosis = '', treatment = '', other = '', followUp = '', reportTitle = '', reportFile = '', reportDescription = '') {
         this.patientId = patientId;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -28,6 +28,9 @@ class PatientAsset {
         this.other = other;
         this.permissionGranted = [];
         this.followUp = followUp;
+        this.reportTitle = reportTitle;
+        this.reportFile = reportFile;
+        this.reportDescription = reportDescription;
         return this;
     }
 }

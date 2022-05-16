@@ -77,7 +77,7 @@ exports.connectNetwork = async (userId, organization) => {
     return networkObj;
   } catch (err) {
     console.log(`Error while establishing network. ${err}`);
-    return { error: err, message: `Error while establishing network. ${err}` };
+    throw new Error({ error: err, message: `Error while establishing network. ${err}` });
   }
 }
 

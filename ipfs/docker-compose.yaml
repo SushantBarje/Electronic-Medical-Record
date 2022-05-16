@@ -1,0 +1,36 @@
+version: '3'
+
+networks:
+  ipfs:
+    driver: bridge
+    
+services:
+  ipfs-node-1:
+    container_name: ipfs-node-1
+    image: ipfs/go-ipfs:latest
+    ports:
+      - 4001:4001 # ipfs swarm - expose if needed/wanted
+      - 5001:5001 # ipfs api - expose if needed/wanted
+      - 8080:8080 # ipfs gateway - expose if needed/wanted
+    networks:
+      - ipfs
+    volumes:
+      - ./data/ipfs:/data/ipfs
+      - ./data/ipfs-staging:/staging
+
+  ipfs-node-2:
+    container_name: ipfs-node-2
+    image: ipfs/go-ipfs:latest
+    ports:
+      - 4002:4002
+      - 5002:5002
+      - 8081:8081
+    networks:
+      - ipfs
+    volumes:
+      - ./data/ipfs:/data/ipfs
+      - ./data/ipfs-staging:/staging
+
+volumes:
+ ipfs-node-1:
+ ipfs-node-2:

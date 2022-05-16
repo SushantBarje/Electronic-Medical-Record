@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({pages, links}) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
       <div className="container">
@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNavDropdown">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <NavLink className="nav-link" aria-current="page" to="/">
+              <NavLink className="nav-link" aria-current="page" to="/patient/home">
                 Home
               </NavLink>
             </li>
@@ -40,8 +40,7 @@ const Navbar = () => {
           </ul>
         </div>
       </div>
-     
-      <button className="btn btn-outline-light ">Vishal Phule</button>
+
      
     </nav>
   );

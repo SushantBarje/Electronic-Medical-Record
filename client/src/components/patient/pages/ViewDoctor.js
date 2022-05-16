@@ -12,6 +12,7 @@ const ViewDoctor = () => {
     const result = await axios.get("http://localhost:3003/users");
     setUser(result.data);
   };
+  
   return (
     <div>
       <div className="container-sm">

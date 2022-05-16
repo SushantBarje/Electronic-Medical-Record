@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate , useLocation} from "react-router-dom";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -10,8 +11,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
@@ -20,11 +19,24 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Navbar from '../layout/Navbar';
+import PropTypes from 'prop-types';
+import { isOptionGroup } from '@mui/base';
+
+
+import axios from 'axios';
+import useAuth from '../../hooks/useAuth';
 
 
 const theme = createTheme();
+const LOGIN_URL = '/users/login';
 
-export default function Login(props) {
+export default function Login() {
+
+  const { setAuth } = useAuth();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -32,21 +44,56 @@ export default function Login(props) {
   const [organization, setOrganization] = useState("");
 
   const handleSelectChange = (event) => {
+    console.log(event.target.value);
     setRole(event.target.value);
   }
-  const handleSubmit = (event) => {
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
     console.log({
-      email: data.get('username'),
+      username: data.get('username'),
       password: data.get('password'),
+      role: data.get('role'),
+      organization: data.get('organization')
     });
-    
+
+    try{
+      const response = await axios.post(LOGIN_URL, 
+        JSON.stringify({username: data.get('username'), password: data.get('password'), role: data.get('role'), organization: data.get('organization')}), 
+        {
+          headers: { 'Content-Type': 'application/json'},
+          withCredentials: true
+        }
+      );
+      
+      console.log(response);
+      console.log(JSON.stringify(response?.data));
+      const accessToken = response?.data?.accessToken;
+      const role = response?.data?.role;
+      setAuth({username, password, role, accessToken});
+      
+      setUsername('');
+      setPassword('');
+      setRole('');
+      setOrganization('');
+      
+      navigate(from, {replace: true});
+      
+    }catch(err){
+      if(!err?.response){
+        console.log("no server response");
+      }else if(err.response?.status === 400){
+        console.log("username apsswe");
+      }else if(err.response?.status === 402){
+        console.log("Unauthorized");
+      }else{
+        console.log("Login failed");
+      }
+    }
   };
 
   const selectOrganizations = () => {
-    console.log(role);
     if (role === 'admin' || role === 'doctor') {
       return (
         <FormControl margin="normal" required fullWidth>
@@ -56,6 +103,7 @@ export default function Login(props) {
             id="select-organization"
             value={organization}
             label="Organization"
+            name="organization"
             onChange={(e) => { setOrganization(e.target.value) }}
           >
             <MenuItem value="">
@@ -96,6 +144,7 @@ export default function Login(props) {
                 id="role-select"
                 value={role}
                 label="Role"
+                name="role"
                 onChange={handleSelectChange}
               >
                 <MenuItem value="">
@@ -143,21 +192,10 @@ export default function Login(props) {
             >
               Log In
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Box>
       </Container>
     </ThemeProvider>
   );
 }
+
