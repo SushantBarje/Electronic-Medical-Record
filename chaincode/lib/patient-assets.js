@@ -10,12 +10,14 @@ const crypto = require('crypto');
 
 class PatientAsset {
 
-    constructor(patientId = '', firstName = '', middleName = '', lastName = '', password = '', age = '', phoneNumber = '', address = '', bloodGroup = '', allergies = '',updatedBy = '', symptoms = '', diagnosis = '', treatment = '', other = '', followUp = '') {
+    constructor(patientId = '', firstName = '', middleName = '', lastName = '', email='', password = '',gender = '', age = '', phoneNumber = '', address = '', bloodGroup = '', allergies = '',updatedBy = '', symptoms = '', diagnosis = '', treatment = '', other = '', followUp = '', reportTitle = '', reportFile = '', reportDescription = '') {
         this.patientId = patientId;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
+        this.email = email;
         this.password = crypto.createHash('sha256').update(password).digest('hex');
+        this.gender = gender;
         this.age = age;
         this.phoneNumber = phoneNumber;
         this.address = address;
@@ -28,6 +30,9 @@ class PatientAsset {
         this.other = other;
         this.permissionGranted = [];
         this.followUp = followUp;
+        this.reportTitle = reportTitle;
+        this.reportFile = reportFile;
+        this.reportDescription = reportDescription;
         return this;
     }
 }

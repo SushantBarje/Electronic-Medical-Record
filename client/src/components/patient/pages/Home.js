@@ -1,11 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from '../../layout/Navbar';
 
+const pages = ['Home', 'View Records', 'View Doctors'];
+const links = ['/patient/home', '/patient/view/record', '/patient/view/doctor'];
+
 const Home = () => {
-  
+
   return (
     <div>
-      <Navbar></Navbar>
+      <Navbar pages={pages} links={links}></Navbar>
       <div className="container">
         <div className="py-4">
           <h1>Home Page</h1>

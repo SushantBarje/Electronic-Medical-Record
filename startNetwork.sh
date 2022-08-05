@@ -15,9 +15,7 @@ CC_SRC_PATH="../chaincode/"
 
 
 # clean out any old identites in the wallets
-rm -rf server-api/wallet/doctor/*
-rm -rf server-api/wallet/laboratory/*
-rm -rf server-api/wallet/patient/*
+rm -rf server-api/wallet/*
 
 # launch network; create channel and join peer to channel
 pushd network-config

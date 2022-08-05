@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from '../../layout/Navbar'
 import axios from "axios";
+
+
+const pages = ['Home', 'View Records', 'View Doctors'];
+const links = ['/patient/home', '/patient/view/record', '/patient/view/doctor'];
+
 const ViewRecord = () => {
   const [users, setUser] = useState([]);
+
+  
 
   useEffect(() => {
     loadUsers();
@@ -14,7 +21,7 @@ const ViewRecord = () => {
   };
   return (
     <div>
-    <Navbar/>
+      <Navbar pages={pages} links={links}></Navbar>
       <div className="container-sm">
         <div className="py-4">
           <h1>View Record Page</h1>

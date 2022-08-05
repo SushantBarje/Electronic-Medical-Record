@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({pages, links}) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
       <div className="container">
@@ -22,8 +22,17 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavDropdown">
           <ul className="navbar-nav">
-            <li className="nav-item">
-              <NavLink className="nav-link" aria-current="page" to="/">
+            {
+              pages.map((page, index) => (
+                <li className="nav-item" key={index}>
+                <NavLink className="nav-link" aria-current="page" to={links[index]}>
+                  {page}
+                </NavLink>
+              </li>
+              ))
+            }
+            {/* <li className="nav-item">
+              <NavLink className="nav-link" aria-current="page" to="/patient/home">
                 Home
               </NavLink>
             </li>
@@ -36,12 +45,11 @@ const Navbar = () => {
               <NavLink className="nav-link" to="/patient/view/doctor">
                 View Doctor
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>
-     
-      <button className="btn btn-outline-light ">Vishal Phule</button>
+
      
     </nav>
   );

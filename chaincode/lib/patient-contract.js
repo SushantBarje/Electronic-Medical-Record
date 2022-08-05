@@ -88,6 +88,7 @@ class PatientContract extends CommonContract {
                 middleName: obj.Record.middleName,
                 lastName: obj.Record.lastName,
                 phoneNumber: obj.Record.phoneNumber,
+                gender: obj.Record.gender,
                 address: obj.Record.address,
                 age: obj.Record.age,
                 allergies: obj.Record.allergies,
@@ -95,8 +96,12 @@ class PatientContract extends CommonContract {
                 updatedBy: obj.Record.updatedBy,
                 diagnosis: obj.Record.diagnosis,
                 treatment: obj.Record.treatment,
+                symptoms: obj.Record.symptoms,
                 other: obj.Record.other,
-                followUp: obj.Record.followUp
+                followUp: obj.Record.followUp,
+                reportTitle: obj.Record.reportTitle,
+                reportDescription : obj.Record.reportDescription,
+                reportFile: obj.Record.reportFile
             }
         }
         console.log("RESULTT");

@@ -17,18 +17,22 @@ class DoctorContract extends CommonContract {
         }
 
         patient = ({
-            patientId: patientId,
-            firstName: patient.firstName,
-            middleName: patient.middleName,
-            lastName: patient.lastName,
-            age: patient.age,
-            bloodGroup: patient.bloodGroup,
-            symptoms: patient.symptoms,
-            diagnosis: patient.diagnosis,
-            treatment: patient.treatment,
-            allergies: patient.allergies,
-            other: patient.other,
-            followUp: patient.followUp
+        patientId: patientId,
+        firstName: patient.firstName,
+        middleName: patient.middleName,
+        lastName: patient.lastName,
+        age: patient.age,
+        gender: patient.gender,
+        bloodGroup: patient.bloodGroup,
+        symptoms: patient.symptoms,
+        diagnosis: patient.diagnosis,
+        treatment: patient.treatment,
+        allergies: patient.allergies,
+        other: patient.other,
+        followUp: patient.followUp,
+        reportTitle : patient.reportTitle,
+        reportFile : patient.reportFile,
+        reportDescription : patient.reportDescription
         });
 
         return patient;
@@ -40,36 +44,39 @@ class DoctorContract extends CommonContract {
         result = JSON.parse(result);
         const permissionAssets = [];
         for (let i = 0; i < result.length; i++) {
-            const obj = result[i];
-            console.log(obj);
-            console.log("PermissionGranted check");
-            console.log('PermissionGranted' in obj.Record);
-            if ('permissionGranted' in obj.Record && obj.Record.permissionGranted.includes(doctorId)) {
-                console.log("permission");
-                result[i] = {
-                    patientId: obj.Key,
-                    firstName: obj.Record.firstName,
-                    middleName: obj.Record.middleName,
-                    lastName: obj.Record.lastName,
-                    phoneNumber: obj.Record.phoneNumber,
-                    age: obj.Record.age,
-                    phoneNumber: obj.Record.phoneNumber,
-                    bloodGroup: obj.Record.bloodGroup,
-                    updatedBy: obj.Record.updatedBy,
-                    allergies: obj.Record.allergies,
-                    symptoms: obj.Record.symptoms,
-                    diagnosis: obj.Record.diagnosis,
-                    treatment: obj.Record.treatment,
-                    other: obj.Record.other,
-                    followUp: obj.Record.followUp
-                }
-                permissionAssets.push(result[i]);
-                console.log(permissionAssets);
+        const obj = result[i];
+        console.log(obj);
+        console.log("PermissionGranted check");
+        console.log('PermissionGranted' in obj.Record);
+        if ('permissionGranted' in obj.Record && obj.Record.permissionGranted.includes(doctorId)) {
+        console.log("permission");
+        result[i] = {
+            patientId: obj.Key,
+            firstName: obj.Record.firstName,
+            middleName: obj.Record.middleName,
+            lastName: obj.Record.lastName,
+            phoneNumber: obj.Record.phoneNumber,
+            age: obj.Record.age,
+            phoneNumber: obj.Record.phoneNumber,
+            gender: obj.Record.gender,
+            bloodGroup: obj.Record.bloodGroup,
+            updatedBy: obj.Record.updatedBy,
+            allergies: obj.Record.allergies,
+            symptoms: obj.Record.symptoms,
+            diagnosis: obj.Record.diagnosis,
+            treatment: obj.Record.treatment,
+            other: obj.Record.other,
+            followUp: obj.Record.followUp,
+            reportTitle: obj.Record.reportTitle,
+            reportDescription : obj.Record.reportDescription,
+            reportFile: obj.Record.reportFile
             }
-        }
+        permissionAssets.push(result[i]);
         console.log(permissionAssets);
-        return permissionAssets;
-
+        }
+    }
+    console.log(permissionAssets);
+    return permissionAssets;
     }
 
     async getPatientHistory(ctx, patientId) {
@@ -91,14 +98,20 @@ class DoctorContract extends CommonContract {
                 middleName: obj.Record.middleName,
                 lastName: obj.Record.lastName,
                 phoneNumber: obj.Record.phoneNumber,
+                gender: obj.Record.gender,
                 address: obj.Record.address,
                 age: obj.Record.age,
                 bloodGroup: obj.Record.bloodGroup,
                 allergies: obj.Record.allergies,
                 updatedBy: obj.Record.updatedBy,
                 diagnosis: obj.Record.diagnosis,
+                symptoms: obj.Record.symptoms,
                 treatment: obj.Record.treatment,
+                followUp: obj.Record.followUp,
                 other: obj.Record.other,
+                reportTitle: obj.Record.reportTitle,
+                reportDescription : obj.Record.reportDescription,
+                reportFile: obj.Record.reportFile
             }
         }
         console.log("RESULTT");
@@ -107,14 +120,11 @@ class DoctorContract extends CommonContract {
     }
 
     async updatePatientRecord(ctx, obj) {
-        
         obj = JSON.parse(obj);
         console.log(obj);
         let change = false;
         let patient = await super.getPatient(ctx, obj.patientId);
-        console.log('check permission');
-        console.log(patient);
-        console.log(patient.permissionGranted.includes(obj.updatedBy));
+
         if(patient.permissionGranted.includes(obj.updatedBy)){
 
             if (obj.symptoms !== null && obj.symptoms !== '' && obj.symptoms !== patient.symptoms) {
@@ -136,9 +146,29 @@ class DoctorContract extends CommonContract {
                 patient.other = obj.other;
                 change = true;
             }
+        
+            if(obj.reportTitle !== null && obj.reportTitle !== '' && obj.reportTitle !== patient.reportTitle){
+                patient.reportTitle = obj.reportTitle;
+                change = true;
+            }
+
+            if(obj.reportFile !== null && obj.reportFile !== '' && obj.reportFile !== patient.reportFile){
+                patient.reportFile = obj.reportFile;
+                change = true;
+            }
+
+            if(obj.reportDescription !== null && obj.reportDescription !== '' && obj.reportDescription !== patient.reportDescription){
+                patient.reportDescription = obj.reportDescription;
+                change = true;
+            }
+
+            if(obj.followUp !== null && obj.followUp !== '' && obj.followUp !== patient.followUp){
+                patient.followUp = obj.followUp;
+                change = true;
+            }
 
             patient.updatedBy = obj.updatedBy;
-
+                
             if (!change) {
                 return;
             } else {
@@ -149,16 +179,16 @@ class DoctorContract extends CommonContract {
         }
     }
 
-    async getDoctorAccessToPatient(ctx, patientId){
-        let patient = await super.getPatient(ctx, patientId);
+    // async getDoctorAccessToPatient(ctx, patientId){
+    // let patient = await super.getPatient(ctx, patientId);
         
-    }
+    // }
 
     async getClientID(ctx) {
         let identity = ctx.clientIdentity.getID();
         identity = identity.split('::')[1].split('/')[2].split('=');
         return identity[1].toString('utf8');
     }
-}
-
-module.exports = DoctorContract;
+ }
+ 
+ module.exports = DoctorContract;

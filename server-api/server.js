@@ -10,12 +10,26 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 
-app.use(cors());
+const corsOptions ={
+    origin:['http://localhost:3000', 'http://localhost:3001'], 
+    credentials: true,            //access-control-allow-credentials:true
+    optionSuccessStatus:200,
+ }
+
+app.use(cors(corsOptions));
+// app.use((req, res, next) => {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authortization');
+//     res.setHeader('Acces-Control-Allow-Methods', 'GET, POST, PATCH, DELETE')
+// });
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(fileUpload());
+
 
 var userRouter = require('./routes/user');
 var indexRouter = require('./routes/index');

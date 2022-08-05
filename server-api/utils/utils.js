@@ -13,10 +13,11 @@ exports.PATIENT_ROLE = 'patient';
 
 
 
-exports.validateRole = async (allowedRole, myRole, res) => {
+exports.validateRole = (allowedRole, myRole) => {
   if (!myRole || !allowedRole || allowedRole !== myRole || myRole.length === 0) {
-    return res.status(401).json({ message: 'Unauthorized Role' });
+    return false;
   }
+  return true;
 }
 
 exports.connectNetwork = async (userId, organization) => {
@@ -77,7 +78,7 @@ exports.connectNetwork = async (userId, organization) => {
     return networkObj;
   } catch (err) {
     console.log(`Error while establishing network. ${err}`);
-    return { error: err, message: `Error while establishing network. ${err}` };
+    throw new Error({ error: err, message: `Error while establishing network. ${err}` });
   }
 }
 
