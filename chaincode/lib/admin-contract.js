@@ -33,7 +33,7 @@ class AdminContract extends CommonContract {
             throw new Error('password field is empty');
         }
 
-        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.password, args.age, args.phoneNumber, args.address, args.bloodGroup, args.allergies, args.updatedBy, args.other);
+        let patientData = new PatientAssets(args.patientId, args.firstName, args.middleName, args.lastName, args.email, args.password, args.gender, args.age, args.phoneNumber, args.address, args.bloodGroup, args.allergies, args.updatedBy, args.other);
         const result = await this.patientExists(ctx, patientData.patientId);
         console.log(result);
         if (result) {
@@ -50,6 +50,8 @@ class AdminContract extends CommonContract {
             firstName: patient.firstName,
             middleName: patient.middleName,
             phoneNumber: patient.phoneNumber,
+            gender: patient.gender,
+            email: patient.email
         });
         return data;
     }
@@ -74,7 +76,9 @@ class AdminContract extends CommonContract {
                 firstName: obj.Record.firstName,
                 middleName: obj.Record.middleName,
                 lastName: obj.Record.lastName,
-                phoneNumber: obj.Record.phoneNumber
+                phoneNumber: obj.Record.phoneNumber,
+                gender: obj.Record.gender,
+                email: obj.Record.email
             }
         }
         console.log(result);

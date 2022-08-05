@@ -13,10 +13,11 @@ exports.PATIENT_ROLE = 'patient';
 
 
 
-exports.validateRole = async (allowedRole, myRole, res) => {
+exports.validateRole = (allowedRole, myRole) => {
   if (!myRole || !allowedRole || allowedRole !== myRole || myRole.length === 0) {
-    return res.status(401).json({ message: 'Unauthorized Role' });
+    return false;
   }
+  return true;
 }
 
 exports.connectNetwork = async (userId, organization) => {

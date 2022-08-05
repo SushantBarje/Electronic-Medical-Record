@@ -22,7 +22,16 @@ const Navbar = ({pages, links}) => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavDropdown">
           <ul className="navbar-nav">
-            <li className="nav-item">
+            {
+              pages.map((page, index) => (
+                <li className="nav-item" key={index}>
+                <NavLink className="nav-link" aria-current="page" to={links[index]}>
+                  {page}
+                </NavLink>
+              </li>
+              ))
+            }
+            {/* <li className="nav-item">
               <NavLink className="nav-link" aria-current="page" to="/patient/home">
                 Home
               </NavLink>
@@ -36,7 +45,7 @@ const Navbar = ({pages, links}) => {
               <NavLink className="nav-link" to="/patient/view/doctor">
                 View Doctor
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

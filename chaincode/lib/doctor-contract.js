@@ -22,6 +22,7 @@ class DoctorContract extends CommonContract {
         middleName: patient.middleName,
         lastName: patient.lastName,
         age: patient.age,
+        gender: patient.gender,
         bloodGroup: patient.bloodGroup,
         symptoms: patient.symptoms,
         diagnosis: patient.diagnosis,
@@ -57,6 +58,7 @@ class DoctorContract extends CommonContract {
             phoneNumber: obj.Record.phoneNumber,
             age: obj.Record.age,
             phoneNumber: obj.Record.phoneNumber,
+            gender: obj.Record.gender,
             bloodGroup: obj.Record.bloodGroup,
             updatedBy: obj.Record.updatedBy,
             allergies: obj.Record.allergies,
@@ -96,13 +98,16 @@ class DoctorContract extends CommonContract {
                 middleName: obj.Record.middleName,
                 lastName: obj.Record.lastName,
                 phoneNumber: obj.Record.phoneNumber,
+                gender: obj.Record.gender,
                 address: obj.Record.address,
                 age: obj.Record.age,
                 bloodGroup: obj.Record.bloodGroup,
                 allergies: obj.Record.allergies,
                 updatedBy: obj.Record.updatedBy,
                 diagnosis: obj.Record.diagnosis,
+                symptoms: obj.Record.symptoms,
                 treatment: obj.Record.treatment,
+                followUp: obj.Record.followUp,
                 other: obj.Record.other,
                 reportTitle: obj.Record.reportTitle,
                 reportDescription : obj.Record.reportDescription,
@@ -140,30 +145,35 @@ class DoctorContract extends CommonContract {
             if (obj.other !== null && obj.other !== '' && obj.other !== patient.other) {
                 patient.other = obj.other;
                 change = true;
-        }
+            }
         
-        if(obj.reportTitle !== null && obj.reportTitle !== '' && obj.reportTitle !== patient.reportTitle){
-            patient.reportTitle = obj.reportTitle;
-            change = true;
-        }
+            if(obj.reportTitle !== null && obj.reportTitle !== '' && obj.reportTitle !== patient.reportTitle){
+                patient.reportTitle = obj.reportTitle;
+                change = true;
+            }
 
-        if(obj.reportFile !== null && obj.reportFile !== '' && obj.reportFile !== patient.reportFile){
-            patient.reportFile = obj.reportFile;
-            change = true;
-        }
+            if(obj.reportFile !== null && obj.reportFile !== '' && obj.reportFile !== patient.reportFile){
+                patient.reportFile = obj.reportFile;
+                change = true;
+            }
 
-        if(obj.reportDescription !== null && obj.reportDescription !== '' && obj.reportDescription !== patient.reportDescription){
-            patient.reportDescription = obj.reportDescription;
-            change = true;
-        }
+            if(obj.reportDescription !== null && obj.reportDescription !== '' && obj.reportDescription !== patient.reportDescription){
+                patient.reportDescription = obj.reportDescription;
+                change = true;
+            }
 
-        patient.updatedBy = obj.updatedBy;
-            
-        if (!change) {
-            return;
-        } else {
-            await ctx.stub.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
-        }
+            if(obj.followUp !== null && obj.followUp !== '' && obj.followUp !== patient.followUp){
+                patient.followUp = obj.followUp;
+                change = true;
+            }
+
+            patient.updatedBy = obj.updatedBy;
+                
+            if (!change) {
+                return;
+            } else {
+                await ctx.stub.putState(obj.patientId, Buffer.from(JSON.stringify(patient)));
+            }
         }else{
             return false;
         }

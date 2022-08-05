@@ -39,10 +39,11 @@ router.get('/patient/record/:patientId/history', auth.verify, async (req, res) =
   }
 })
 
-router.patch('/patient/record/add/:patientId', auth.verify, async (req, res) => {
+router.post('/patient/record/add', auth.verify, async (req, res) => {
   await validateRole(DOCTOR_ROLE, req.user.role, res);
+  console.log("body"+req.body);
   let args = req.body;
-  args.patientId = req.params.patientId;
+  args.patientId = req.body.patientId;
   args.updatedBy = req.user.username;
   console.log(args);
   const networkObj = await connectNetwork(req.user.username, req.user.org);

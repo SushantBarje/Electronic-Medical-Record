@@ -10,6 +10,18 @@ const { buildCAClient, registerAndEnrollUser } = require('../utils/CAUtils');
 const FabricCAServices = require('fabric-ca-client');
 const { registerUser } = require('../registerUser');
 
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: 'mydemogorgan@gmail.com',
+        pass: 'bflahdkznoeufjkc'
+    }
+});
+
 const checkEmpty = (req) => {
     const keys = Object.keys(req.body);
     console.log(keys);
@@ -25,44 +37,53 @@ const checkEmpty = (req) => {
 }
 
 router.post('/doctors/register', auth.verify, async (req, res) => {
-    await validateRole(ADMIN_ROLE, req.user.role, res);
-    let checkE = checkEmpty(req);
-    if(checkE){
-        res.status(500).json({error: "empty", message: "Empty Input"});
-    }
-    const { username, password } = req.body;
-
-    const redisClient = await createRedisConnection(req.user.org);
-    (await redisClient).SET(username, password);
-
-    req.body.role = DOCTOR_ROLE;
-    req.body.organization = req.user.org;
-    const obj = [JSON.stringify(req.body)];
-    let response;
-    try {
-        if (req.user.org === 'doctor') {
-            const ccp = buildCCDoctor();
-            const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
-            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
-            response = await registerAndEnrollUser(caClient, wallet, 'DoctorMSP', username, req.user.username, obj);
-
-        } else if (req.user.org === 'laboratory') {
-            const ccp = buildCCLaboratory();
-            const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
-            const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
-            response = await registerAndEnrollUser(caClient, wallet, 'LaboratoryMSP', username, req.user.username, obj);
+    try{
+        let checkE = checkEmpty(req);
+        if(checkE){
+            res.status(500).json({error: "empty", message: "Empty Input"});
         }
-
-        if (response.error !== 'none') {
-            res.status(400).json(response);
-        } else {
-            res.status(200).json(response);
+        if(!validateRole(ADMIN_ROLE, req.user.role, res)){
+            res.status(401).json({error: "auth", message: "Unauthorized User"});
+        }else{
+            const { username, password } = req.body;
+            const role = 'doctor';
+            const redisClient = await createRedisConnection(req.user.org);
+            (await redisClient).SET(username, password, role);
+        
+            req.body.role = DOCTOR_ROLE;
+            req.body.organization = req.user.org;
+            const obj = [JSON.stringify(req.body)];
+            let response;
+        
+            try {
+                if (req.user.org === 'doctor') {
+                    const ccp = buildCCDoctor();
+                    const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.doctor.hospital_network.com');
+                    const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
+                    response = await registerAndEnrollUser(caClient, wallet, 'DoctorMSP', username, req.user.username, obj);
+        
+                } else if (req.user.org === 'laboratory') {
+                    const ccp = buildCCLaboratory();
+                    const caClient = await buildCAClient(FabricCAServices, ccp, 'ca.laboratory.hospital_network.com');
+                    const wallet = await buildWallet(Wallets, path.join(__dirname, '../wallet'));
+                    response = await registerAndEnrollUser(caClient, wallet, 'LaboratoryMSP', username, req.user.username, obj);
+                }
+        
+                if (response.error !== 'none') {
+                    res.status(400).json({error: 'error', msg: response});
+                } else {
+                    res.status(200).json({error: 'none', msg: response});
+                }
+            } catch (err) {
+                console.log(err);
+                (await redisClient).DEL(username);
+                res.status(400).json({error: 'error', msg: err})
+            }
         }
-    } catch (err) {
-        console.log(err);
-        (await redisClient).DEL(username);
-        res.status(400).json(err)
-    }
+    }catch(error){
+        console.log(error);
+    }   
+    
 });
 
 /**
@@ -87,6 +108,16 @@ router.post('/patient/register', auth.verify, async (req, res) => {
             req.body.password = Math.random().toString(36).slice(-8);
             req.body.updatedBy = req.user.username;
             req.body.role = 'patient';
+            
+            var mailOptions = {
+                from: 'mydemogorgan@gmail.com',
+                to: req.body.email,
+                subject: 'Healthchain: Credientials for your EMR',
+                html: "<h4>Your registration is Successful..</h4><p>Username: "+ req.body.patientId +"</p>\
+                        <p> Password: " + req.body.password + "</p>"
+            }
+
+            const mail = await transporter.sendMail(mailOptions);
             const response = await network.contract.submitTransaction('AdminContract:createPatient', JSON.stringify(req.body));
             console.log(response.toString());
             const result = await registerUser(req.user.org, req.user.username, req.body);
@@ -98,6 +129,8 @@ router.post('/patient/register', auth.verify, async (req, res) => {
     
             // Disconnect from the gateway.
             await network.gateway.disconnect();
+            
+            console.log(mail);
             res.status(200).json({ error: 'none', message: 'Patient Registeration succesfull', username: req.body.patientId, password: req.body.password });
         } catch (error) {
             console.log(error);
@@ -106,7 +139,6 @@ router.post('/patient/register', auth.verify, async (req, res) => {
     }else{
         res.status(400).json({error: 'not_auth', message: "Not Authorized..."});
     }
-    
 });
 
 router.get('/doctors/all/:organization', auth.verify, async (req, res) => {

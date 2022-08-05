@@ -46,7 +46,9 @@ function App() {
               <Route exact path="/patient/view/viewdetails" element={<ViewDetails />}></Route>
             </Route>
 
+            <Route path="/test" element={<ViewDoctor/>}></Route>
             <Route path="*" element={<NotFound />} />
+            
           </Route>
         </Routes>
     </div>

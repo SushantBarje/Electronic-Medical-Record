@@ -23,20 +23,27 @@ import PropTypes from 'prop-types';
 import { isOptionGroup } from '@mui/base';
 
 
-import axios from 'axios';
+
 import useAuth from '../../hooks/useAuth';
+
+import axios from '../../api/axios';
 
 
 const theme = createTheme();
 const LOGIN_URL = '/users/login';
 
+const pages = [];
+const links = [];
+
 export default function Login() {
 
   const { setAuth } = useAuth();
-
+  const{ auth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  let path;
+  
+  const from = location.state?.from?.pathname || "/patient/home";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -51,12 +58,6 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      password: data.get('password'),
-      role: data.get('role'),
-      organization: data.get('organization')
-    });
 
     try{
       const response = await axios.post(LOGIN_URL, 
@@ -66,18 +67,24 @@ export default function Login() {
           withCredentials: true
         }
       );
-      
-      console.log(response);
-      console.log(JSON.stringify(response?.data));
+      console.log(response.data);
       const accessToken = response?.data?.accessToken;
-      const role = response?.data?.role;
-      setAuth({username, password, role, accessToken});
-      
+      const roleResponse = response?.data?.role;
+      const organizationResponse = response?.data?.organization;
+      setAuth({username, roleResponse, organizationResponse, accessToken});
+      // if(role === 'admin'){
+      //   if(organization === 'doctor'){
+      //     from = '/doctor/home';
+      //   }else{
+      //     from = '/'
+      //   }
+      // }
       setUsername('');
       setPassword('');
       setRole('');
       setOrganization('');
-      
+      console.log(organization);
+      console.log(auth);
       navigate(from, {replace: true});
       
     }catch(err){
@@ -119,7 +126,7 @@ export default function Login() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Navbar/>
+      <Navbar pages={pages} links={links}/>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
